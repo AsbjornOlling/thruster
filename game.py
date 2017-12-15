@@ -42,7 +42,7 @@ while not crashed:
     # player handling
     p.move()
 
-    display.blit(p.img, (p.x, p.y))
+    display.blit(p.img, p.position)
 
 
     pygame.display.update()
