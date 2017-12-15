@@ -2,3 +2,5 @@
 
 width = 500
 height = 500
+fps = 60
+dt = 0

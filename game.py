@@ -35,18 +35,22 @@ while not crashed:
     # key handling w/ holding
     keys = pygame.key.get_pressed()
     if keys[K_RIGHT]:
-        p.accelerate(1)
+        p.accelerate((-1, 0))
     elif keys[K_LEFT]:
-        p.accelerate(-1)
+        p.accelerate((1, 0))
+    elif keys[K_UP]:
+        p.accelerate((0, 1))
+    elif keys[K_DOWN]:
+        p.accelerate((0, -1))
+    keys = []
 
     # player handling
     p.move()
 
     display.blit(p.img, p.position)
 
-
     pygame.display.update()
-    clock.tick(clock.get_fps())
+    settings.dt = clock.tick(settings.fps)
 
 pygame.quit()
 quit()
