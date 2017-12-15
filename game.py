@@ -5,21 +5,20 @@
 import pygame
 from pygame.locals import *
 
+import player
+import settings
+
 pygame.init()
 
-width = 500
-height = 500
-window_title = "THRUSTER"
-
 # boilerplate stuff to make pygame run, window settings etc.
-display = pygame.display.set_mode((width, height))
+display = pygame.display.set_mode((settings.width, settings.height))
 pygame.display.set_caption("THRUSTER")
 display.fill((255,255,255))
 clock = pygame.time.Clock()
+pygame.key.set_repeat(50, 30)
 
-# load and scale image assets
-player_img = pygame.image.load("ship_placeholder.png").convert()
-player_img = pygame.transform.scale(player_img, (50, 50))
+# make player
+p = player.Player()
 
 crashed = False
 while not crashed:
@@ -30,15 +29,24 @@ while not crashed:
             crashed = True
 
         elif event.type == KEYDOWN:
-            if event.key == K_SPACE:
-                display.fill((199,199,199))
-            elif event.key == K_q:
+            if event.key == K_q:
                 crashed = True
 
-    display.blit(player_img, (0,0))
+    # key handling w/ holding
+    keys = pygame.key.get_pressed()
+    if keys[K_RIGHT]:
+        p.accelerate(1)
+    elif keys[K_LEFT]:
+        p.accelerate(-1)
+
+    # player handling
+    p.move()
+
+    display.blit(p.img, (p.x, p.y))
+
 
     pygame.display.update()
-    clock.tick(60)
+    clock.tick(clock.get_fps())
 
 pygame.quit()
 quit()
