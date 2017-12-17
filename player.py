@@ -25,7 +25,7 @@ class Player(pygame.sprite.Sprite):
     def update(self):
         # get new position
         self.move()
-        # put bounding box to position
+        # update bounding box position
         self.rect.x = self.posx
         self.rect.y = self.posy
 
@@ -46,4 +46,6 @@ class Player(pygame.sprite.Sprite):
     # takes a tuple vector, adds it to speed vector
     def accelerate(self, change):
         self.speed += tuple(c * settings.dt for c in change)
+        # shit in my face
+
         print("Speed: " + str(self.speed))
