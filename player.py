@@ -3,14 +3,14 @@ import math
 import settings
 
 class Player(pygame.sprite.Sprite):
-    health = 100
-    speedmod = 0.05
+    speedmod = 0.0005
+    posx = 0.0
+    posy = 0.0
 
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
 
-        # init position and speed
-        self.pos = (0, 0)
+        # speed vector
         self.speed = pygame.math.Vector2()
 
         # load and scale image
@@ -20,11 +20,23 @@ class Player(pygame.sprite.Sprite):
         # bounding box
         self.rect = self.image.get_rect()
 
-    def move(self):
-        new_pos = (self.speed * self.speedmod * settings.dt)
-        self.rect.x = new_pos[0]
-        self.rect.y = new_pos[1]
 
-    # takes a tuple, adds it to speed vector
+    def update(self):
+        # get new position
+        self.move()
+        # put bounding box to position
+        self.rect.x = self.posx
+        self.rect.y = self.posy
+
+
+    def move(self):
+        # calculate new position
+        delta = self.speed * settings.dt * self.speedmod
+        self.posx += delta[0]
+        self.posy += delta[1]
+
+    
+    # takes a tuple vector, adds it to speed vector
     def accelerate(self, change):
         self.speed += tuple(c * settings.dt for c in change)
+        print("Speed: " + str(self.speed))

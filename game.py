@@ -10,16 +10,18 @@ import settings
 pygame.init()
 
 # boilerplate stuff to make pygame run, winsettings etc.
-display = pygame.display.set_mode((settings.width, settings.height))
-pygame.display.set_caption("THRUSTER")
-display.fill((255,255,255))
 clock = pygame.time.Clock()
 pygame.key.set_repeat(50, 30)
+display = pygame.display.set_mode((settings.width, settings.height))
+pygame.display.set_caption("THRUSTER")
+display.fill(settings.color_bg)
+pygame.display.update()
 
 # make player sprite and group
 p = player.Player()
 moving_actors = pygame.sprite.RenderUpdates()
 moving_actors.add(p)
+
 
 crashed = False
 while not crashed:
@@ -43,16 +45,17 @@ while not crashed:
         p.accelerate((0, 1))
     elif keys[K_DOWN]:
         p.accelerate((0, -1))
-    keys = []
+    keys = [] # clear array
 
     # player handling
-    p.move()
+    moving_actors.update()
 
+    # render background
+    display.fill(settings.color_bg)
+    # render moving sprites
+    pygame.display.update(moving_actors.draw(display))
 
-    #display.blit(p.img, p.position)
-    moving_actors.draw(display)
-
-    pygame.display.update()
+    # tick
     settings.dt = clock.tick(settings.fps)
 
 pygame.quit()
