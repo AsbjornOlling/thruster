@@ -15,4 +15,5 @@ dt = 0
 # sprite groups
 allsprites = pygame.sprite.RenderUpdates()
 playergroup = pygame.sprite.GroupSingle()
-playerattach = pygame.sprite.Group()
+playerattached = pygame.sprite.Group()
+thrustergroup = pygame.sprite.Group()

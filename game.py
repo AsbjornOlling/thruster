@@ -44,16 +44,16 @@ class Game:
                     self.on_cleanup()
 
         # key handling w/ holding
-        keys = pygame.key.get_pressed()
+        settings.keys = pygame.key.get_pressed()
         # arrow keys for movement
-        if keys[K_RIGHT]:
-            self.p.accelerate((-1, 0))
-        elif keys[K_LEFT]:
-            self.p.accelerate((1, 0))
-        elif keys[K_UP]:
-            self.p.accelerate((0, 1))
-        elif keys[K_DOWN]:
-            self.p.accelerate((0, -1))
+        if settings.keys[K_RIGHT]:
+            self.p.thrust("E")
+        elif settings.keys[K_LEFT]:
+            self.p.thrust("W")
+        elif settings.keys[K_UP]:
+            self.p.thrust("N")
+        elif settings.keys[K_DOWN]:
+            self.p.thrust("S")
 
     def on_cleanup():
         pygame.quit()
