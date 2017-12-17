@@ -24,14 +24,12 @@ class Game:
 
         # make player and group
         self.p = player.Player()
-        self.actors = pygame.sprite.RenderUpdates()
-        self.actors.add(self.p)
 
     def on_render(self):
         # background
         self.screen.fill(settings.color_bg)
         # sprites
-        pygame.display.update(self.actors.draw(self.screen))
+        pygame.display.update(settings.allsprites.draw(self.screen))
 
     def on_event(self):
         # main event handler
@@ -64,7 +62,7 @@ class Game:
     def on_execute(self):
         while True:
             self.on_event()
-            self.actors.update()
+            settings.allsprites.update()
             self.on_render()
 
             # tick
