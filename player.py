@@ -4,6 +4,7 @@ import settings
 
 class Player(pygame.sprite.Sprite):
     speedmod = 0.0005
+    bounce_factor = -0.8
     posx = 0.0
     posy = 0.0
 
@@ -34,6 +35,12 @@ class Player(pygame.sprite.Sprite):
         delta = self.speed * settings.dt * self.speedmod
         self.posx += delta[0]
         self.posy += delta[1]
+
+        # bouncing off walls
+        if self.posx < 0 or self.posx + self.rect.width > settings.width: 
+            self.speed[0] *= self.bounce_factor
+        if self.posy < 0 or self.posy + self.rect.height > settings.height: 
+            self.speed[1] *= self.bounce_factor
 
     
     # takes a tuple vector, adds it to speed vector
