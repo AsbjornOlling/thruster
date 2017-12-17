@@ -87,7 +87,7 @@ class Thruster(pygame.sprite.Sprite):
     # inits and constants
     posx = 0.0
     posy = 0.0
-    length = 50
+    length = 50 # can be height or width
     width = 10
     shrinkrate = -0.5 
 
@@ -101,35 +101,41 @@ class Thruster(pygame.sprite.Sprite):
         settings.playerattached.add(self)
         settings.thrustergroup.add(self)
 
-        # image
-        self.image = pygame.image.load("flame-single_placeholder.png")
-        self.image = pygame.transform.scale(self.image, (self.width, self.length))
-        # rotation
-        if self.side == "W":
-            self.image = pygame.transform.rotate(self.image, 90)
-        elif self.side == "E":
-            self.image = pygame.transform.rotate(self.image, -90)
-        elif self.side == "S":
-            self.image = pygame.transform.rotate(self.image, 180)
-
-        # make bounding box
-        self.rect = self.image.get_rect()
+        self.image = pygame.image.load("0.png").convert_alpha()
 
         # find starting position relative to player
         player = settings.playergroup.sprite
         if self.side == "W" or self.side == "E":
-            self.posy = player.posy + player.rect.height/2 - self.rect.height/2
+            self.posy = player.posy + player.rect.height/2 - self.length/2
             if self.side == "W":
-                self.posx = player.posx - self.rect.width
+                self.posx = player.posx - self.width
             elif self.side == "E":
-                self.posx = player.posx + self.rect.width
+                self.posx = player.posx + self.width
 
         elif self.side == "N" or self.side == "S":
-            self.posx = player.posx + player.rect.width/2 - self.rect.width/2
+            self.posx = player.posx + player.rect.width/2 - self.width/2
             if self.side == "N":
-                self.posy = player.posy - self.rect.height
+                self.posy = player.posy - self.length
             if self.side == "S":
                 self.posy = player.posy + player.rect.width
+
+        # make bounding box
+        if self.side == "W":
+            self.rect = pygame.Rect((self.posx - self.length,
+                                    self.posy - self.width/2),
+                                    (self.length, self.width))
+        elif self.side == "E":
+            self.rect = pygame.Rect((self.posx,
+                                    self.posy - self.width/2),
+                                    (self.length, self.width))
+        elif self.side == "N":
+            self.rect = pygame.Rect((self.posx - self.width/2,
+                                    self.posy - self.length),
+                                    (self.width, self.length))
+        elif self.side == "S":
+            self.rect = pygame.Rect((self.posx - self.width/2,
+                                    self.posy),
+                                    (self.width, self.length))
 
 
     def update(self):
@@ -142,18 +148,19 @@ class Thruster(pygame.sprite.Sprite):
         # update bounding box with new coords
         self.rect.x = self.posx
         self.rect.y = self.posy
+        self.draw_flame(self.side)
 
 
     def scale(self, amount):
         self.length += amount
         if self.side == "W" or self.side == "E":
-            self.image = pygame.transform.scale(self.image, (int(self.length), self.width))
             if self.side == "W":
                 self.posx = self.posx - amount
         elif self.side == "N" or self.side == "S":
             if self.side == "N":
                 self.posy = self.posy - amount
-            self.image = pygame.transform.scale(self.image, (self.width, int(self.length)))
 
-        # bounding box at new scale
-        self.rect = self.image.get_rect()
+
+    def draw_flame(self, direction):
+        # draw the flame
+        pygame.draw.ellipse(settings.screen, settings.color_flame, self.rect)

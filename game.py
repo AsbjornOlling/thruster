@@ -15,21 +15,30 @@ class Game:
         # key repeat
         pygame.key.set_repeat(50, 30)
         #display settings
-        self.screen = pygame.display.set_mode((settings.width, settings.height))
         pygame.display.set_caption("THRUSTER")
 
         # initial render
-        self.screen.fill(settings.color_bg)
+        settings.screen.fill(settings.color_bg)
         pygame.display.update()
 
         # make player and group
         self.p = player.Player()
 
+
     def on_render(self):
         # background
-        self.screen.fill(settings.color_bg)
-        # sprites
-        pygame.display.update(settings.allsprites.draw(self.screen))
+        
+        # allsprites
+        pygame.display.update(settings.allsprites.draw(settings.screen))
+
+        # temp fix for thruster rendering
+        thrusterrects = []
+        for thruster in settings.thrustergroup:
+            thrusterrects.append(thruster.rect)
+        pygame.display.update(thrusterrects)
+        pygame.display.update()
+
+        settings.screen.fill(settings.color_bg)
 
     def on_event(self):
         # main event handler
@@ -55,9 +64,11 @@ class Game:
         elif settings.keys[K_DOWN]:
             self.p.thrust("S")
 
+
     def on_cleanup():
         pygame.quit()
         quit()
+
 
     def on_execute(self):
         while True:
@@ -67,6 +78,7 @@ class Game:
 
             # tick
             settings.dt = self.clock.tick(settings.fps)
+
 
 if __name__ == "__main__":
     game = Game()
