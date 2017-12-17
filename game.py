@@ -7,56 +7,69 @@ from pygame.locals import *
 import player
 import settings
 
-pygame.init()
+class Game:
+    def __init__(self):
+        # pygame stuff
+        pygame.init()
+        self.clock = pygame.time.Clock()
+        # key repeat
+        pygame.key.set_repeat(50, 30)
+        #display settings
+        self.screen = pygame.display.set_mode((settings.width, settings.height))
+        pygame.display.set_caption("THRUSTER")
 
-# boilerplate stuff to make pygame run, winsettings etc.
-clock = pygame.time.Clock()
-pygame.key.set_repeat(50, 30)
-display = pygame.display.set_mode((settings.width, settings.height))
-pygame.display.set_caption("THRUSTER")
-display.fill(settings.color_bg)
-pygame.display.update()
+        # initial render
+        self.screen.fill(settings.color_bg)
+        pygame.display.update()
 
-# make player sprite and group
-p = player.Player()
-moving_actors = pygame.sprite.RenderUpdates()
-moving_actors.add(p)
+        # make player and group
+        self.p = player.Player()
+        self.actors = pygame.sprite.RenderUpdates()
+        self.actors.add(self.p)
 
+    def on_render(self):
+        # background
+        self.screen.fill(settings.color_bg)
+        # sprites
+        pygame.display.update(self.actors.draw(self.screen))
 
-crashed = False
-while not crashed:
+    def on_event(self):
+        # main event handler
+        for event in pygame.event.get():
+            # exit game
+            if event.type == pygame.QUIT:
+                self.on_cleanup()
 
-    for event in pygame.event.get():
-        # exit game
-        if event.type == pygame.QUIT:
-            crashed = True
+            # keyhandling w/o holding
+            elif event.type == KEYDOWN:
+                if event.key == K_q:
+                    self.on_cleanup()
 
-        elif event.type == KEYDOWN:
-            if event.key == K_q:
-                crashed = True
+        # key handling w/ holding
+        keys = pygame.key.get_pressed()
+        # arrow keys for movement
+        if keys[K_RIGHT]:
+            self.p.accelerate((-1, 0))
+        elif keys[K_LEFT]:
+            self.p.accelerate((1, 0))
+        elif keys[K_UP]:
+            self.p.accelerate((0, 1))
+        elif keys[K_DOWN]:
+            self.p.accelerate((0, -1))
 
-    # key handling w/ holding
-    keys = pygame.key.get_pressed()
-    if keys[K_RIGHT]:
-        p.accelerate((-1, 0))
-    elif keys[K_LEFT]:
-        p.accelerate((1, 0))
-    elif keys[K_UP]:
-        p.accelerate((0, 1))
-    elif keys[K_DOWN]:
-        p.accelerate((0, -1))
-    keys = [] # clear array
+    def on_cleanup():
+        pygame.quit()
+        quit()
 
-    # player handling
-    moving_actors.update()
+    def on_execute(self):
+        while True:
+            self.on_event()
+            self.actors.update()
+            self.on_render()
 
-    # render background
-    display.fill(settings.color_bg)
-    # render moving sprites
-    pygame.display.update(moving_actors.draw(display))
+            # tick
+            settings.dt = self.clock.tick(settings.fps)
 
-    # tick
-    settings.dt = clock.tick(settings.fps)
-
-pygame.quit()
-quit()
+if __name__ == "__main__":
+    game = Game()
+    game.on_execute() # main game loop
