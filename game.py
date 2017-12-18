@@ -1,13 +1,12 @@
+# conatainer file for game states, clock etc.
+
 import pygame
 
-class Game:
-    dt = 0
+# time stuff
+clock = pygame.time.Clock()
+dt = 0
 
-    def __init__(self):
-        self.clock = pygame.time.Clock()
+# sprite groups
+allsprites = pygame.sprite.RenderUpdates()
+singleplayer = pygame.sprite.GroupSingle()
 
-        # make sprite groups
-        self.allsprites = pygame.sprite.RenderUpdates()
-
-        # display surface
-        self.screen = pygame.display.set_mode((width, height))

@@ -3,9 +3,10 @@
 
 import pygame
 from pygame.locals import *
-import settings
 import game
+import view
 import player
+import settings
 
 class App:
     def __init__(self):
@@ -22,11 +23,11 @@ class App:
 
     # Clear, update, draw
     def on_render(self):
-        pygame.display.update(settings.allsprites.draw(game.screen))
+        pygame.display.update(game.allsprites.draw(view.screen))
 
         # temp fix for thruster rendering
         pygame.display.update()
-        game.screen.fill(settings.color_bg)
+        view.screen.fill(view.color_bg)
 
 
     def on_event(self):
@@ -41,6 +42,7 @@ class App:
                 if event.key == K_q:
                     self.on_cleanup()
 
+        # TODO all this should be a controller object
         # key handling w/ holding
         settings.keys = pygame.key.get_pressed()
         # arrow keys for movement
@@ -61,15 +63,14 @@ class App:
 
 if __name__ == "__main__":
     app = App()
-    game = game.Game()
     # main loop
     while True:
         # handle keyboard events
         app.on_event()
         # update all sprites
-        app.allsprites.update()
+        game.allsprites.update()
         # draw everything
         app.on_render()
 
         # tick
-        game.dt = game.clock.tick(settings.fps)
+        game.dt = game.clock.tick(view.fps)

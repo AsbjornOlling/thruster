@@ -1,5 +1,7 @@
 ## Some architecture notes
 
+### General Brainstorm
+
 * App 
     * clock
     * title
@@ -33,6 +35,28 @@
 		* app events
 				- quit
 				- pause
+
+
+### Who talks to whom
+
+**MVC Model:**
+
+Model: Sprites, game.py
+
+Viewer: on_render()
+
+Controller: on_event()
+
+*Model to viewer:* areas to update, special effects calls, pause state
+*Model to controller:* n/a
+*Model to model:* updating positions, behavior on colissions
+
+*Viewer to model:* n/a
+*Viewer to controller:* n/a
+*Viewer to viewer:* n/a
+
+*Controller to model:* all kb input, mouse input, exit signals
+*Controller to viewer:* n/a
 
 
 ## Goals and milestones

@@ -1,10 +1,12 @@
 import math
 import pygame
-import settings
+import game
+import view
 import events
+import settings
 
 class Player(pygame.sprite.Sprite):
-    posx = 0.0 # double preision pos
+    posx = 0.0 # double precision pos
     posy = 0.0
     speedmod = 0.0005
     bounce_factor = -0.8 # must be between -1 and 0
@@ -14,8 +16,10 @@ class Player(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
 
         # groups
-        game.game.allsprites.add(self)
-        game.game.playergroup.add(self)
+        game.allsprites.add(self)
+        game.singleplayer.add(self)
+        self.attached = pygame.sprite.Group()
+        self.thrusters = pygame.sprite.Group()
 
         # speed vector
         self.speed = pygame.math.Vector2()
@@ -38,19 +42,19 @@ class Player(pygame.sprite.Sprite):
 
     def move(self):
         # calculate new position
-        delta = self.speed * settings.dt * self.speedmod
+        delta = self.speed * game.dt * self.speedmod
         self.posx += delta[0]
         self.posy += delta[1]
 
         # move all attached sprites
-        for asprite in settings.playerattached:
+        for asprite in self.attached:
             asprite.posx += delta[0]
             asprite.posy += delta[1]
 
         # walls - these should probably be their own sprites
-        if self.posx < 0 or self.posx + self.rect.width > settings.width: 
+        if self.posx < 0 or self.posx + self.rect.width > view.width: 
             self.speed[0] *= self.bounce_factor
-        if self.posy < 0 or self.posy + self.rect.height > settings.height: 
+        if self.posy < 0 or self.posy + self.rect.height > view.height: 
             self.speed[1] *= self.bounce_factor
 
 
@@ -58,7 +62,7 @@ class Player(pygame.sprite.Sprite):
     def thrust(self, direction):
         # look for thruster
         thruster_found = False
-        for thruster in settings.thrustergroup:
+        for thruster in self.thrusters:
             if thruster.side == direction:
                 thurster_found = True
                 thruster.scale(1)
@@ -66,7 +70,7 @@ class Player(pygame.sprite.Sprite):
         # make one if it wasn't there
         if not thruster_found:
             thruster = Thruster(direction)
-            settings.thrustergroup.add(thruster)
+            self.thrusters.add(thruster)
 
         # accelerate
         if direction == "W":
@@ -81,9 +85,10 @@ class Player(pygame.sprite.Sprite):
     
     # takes a tuple vector, adds it to speed vector
     def accelerate(self, change):
-        self.speed += tuple(c * settings.dt for c in change)
+        self.speed += tuple(c * game.dt for c in change)
 
 
+# thruster animation attached to main player
 class Thruster(pygame.sprite.Sprite):
     # inits and constants
     posx = 0.0
@@ -95,17 +100,19 @@ class Thruster(pygame.sprite.Sprite):
 
     def __init__(self, direction):
         pygame.sprite.Sprite.__init__(self)
+        
         self.side = direction
+        player = game.singleplayer.sprite
 
         # groups
-        settings.allsprites.add(self)
-        settings.playerattached.add(self)
-        settings.thrustergroup.add(self)
+        game.allsprites.add(self)
+        player.attached.add(self)
+        player.thrusters.add(self)
 
+        # image because apparently there needs to be one
         self.image = pygame.image.load("0.png").convert_alpha()
 
-        # find starting position relative to player
-        player = settings.playergroup.sprite
+        # find thruster position relative to player
         if self.side == "W" or self.side == "E":
             self.posy = player.posy + player.rect.height/2 - self.length/2
             if self.side == "W":
@@ -140,7 +147,7 @@ class Thruster(pygame.sprite.Sprite):
 
 
     def update(self):
-        # shrink flame
+        # shrink flame a little
         self.scale(-1)
         if self.length < 1:
             self.kill()
@@ -149,7 +156,7 @@ class Thruster(pygame.sprite.Sprite):
         # update bounding box with new coords
         self.rect.x = self.posx
         self.rect.y = self.posy
-        self.draw_flame(self.side)
+        #self.draw_flame(self.side)
 
 
     def scale(self, amount):
@@ -162,7 +169,7 @@ class Thruster(pygame.sprite.Sprite):
                 self.posy = self.posy - amount
 
 
-    # this definitely does not belong in here
-    def draw_flame(self, direction):
-        # draw the flame
-        pygame.draw.ellipse(settings.screen, settings.color_flame, self.rect)
+#    # this definitely does not belong in here
+#    def draw_flame(self, direction):
+#        # draw the flame
+#        pygame.draw.ellipse(settings.screen, settings.color_flame, self.rect)
