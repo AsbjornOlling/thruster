@@ -65,9 +65,10 @@ Controller: on_event()
 
 **Goals:**
 
-- rename files to make sense
-* deprecate settings.py
-* make Drawer object
 - start adding Events classes
 
+**Accomplished:**
 
+- deprecate settings.py
+- make event handler class
+- moved towards mvc design

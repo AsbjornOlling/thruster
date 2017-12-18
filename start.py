@@ -21,15 +21,6 @@ class App:
         self.p = player.Player()
 
 
-    # Clear, update, draw
-    def on_render(self):
-        pygame.display.update(game.allsprites.draw(view.screen))
-
-        # temp fix for thruster rendering
-        pygame.display.update()
-        view.screen.fill(view.color_bg)
-
-
     def on_event(self):
         # main event handler
         for event in pygame.event.get():
@@ -70,7 +61,7 @@ if __name__ == "__main__":
         # update all sprites
         game.allsprites.update()
         # draw everything
-        app.on_render()
+        view.render()
 
         # tick
         game.dt = game.clock.tick(view.fps)
