@@ -3,8 +3,11 @@
 
 import pygame
 from pygame.locals import *
+
 import game
 import view
+import events
+import controls
 import player
 import settings
 
@@ -28,11 +31,6 @@ class App:
             if event.type == pygame.QUIT:
                 self.on_cleanup()
 
-            # keyhandling w/o holding
-            elif event.type == KEYDOWN:
-                if event.key == K_q:
-                    self.on_cleanup()
-
         # TODO all this should be a controller object
         # key handling w/ holding
         settings.keys = pygame.key.get_pressed()
@@ -47,17 +45,32 @@ class App:
             self.p.thrust("S")
 
 
-    def on_cleanup():
+    def on_cleanup(self):
         pygame.quit()
         quit()
 
 
+    # receive events from evm
+    def notify(self, event):
+        if isinstance(event, events.Quit):
+            self.on_cleanup()
+
+
 if __name__ == "__main__":
     app = App()
+    evm = events.EventManager()
+    # make evm acessible without importing start.py
+    events.eventmanager = evm
+
+    kb = controls.KeyboardController()
+    
+    evm.add_listener(app)
+
     # main loop
     while True:
         # handle keyboard events
-        app.on_event()
+        kb.update()
+        app.on_event() # legacy
         # update all sprites
         game.allsprites.update()
         # draw everything

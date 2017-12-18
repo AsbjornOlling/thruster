@@ -1,4 +1,6 @@
 # superclass for objects passed to and from eventManager
+eventmanager = 0
+
 class Event:
     def __init__(self):
         self.name = "Generic Event"
@@ -12,7 +14,7 @@ class EventManager:
 
     # add a listener
     def add_listener(self, listener):
-        if listener not in self.listener:
+        if listener not in self.listeners:
             self.listeners.append(listener)
 
 
@@ -26,3 +28,8 @@ class EventManager:
     def notify(self, event):
         for listener in self.listeners:
             listener.notify(event)
+
+
+class Quit(Event):
+    def __init__(self):
+        pass

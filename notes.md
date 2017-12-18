@@ -1,4 +1,4 @@
-## Some architecture notes
+# Some design notes
 
 ### General Brainstorm
 
