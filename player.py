@@ -1,9 +1,10 @@
-import pygame
 import math
+import pygame
 import settings
+import events
 
 class Player(pygame.sprite.Sprite):
-    posx = 0.0
+    posx = 0.0 # double preision pos
     posy = 0.0
     speedmod = 0.0005
     bounce_factor = -0.8 # must be between -1 and 0
@@ -13,8 +14,8 @@ class Player(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
 
         # groups
-        settings.allsprites.add(self)
-        settings.playergroup.add(self)
+        game.game.allsprites.add(self)
+        game.game.playergroup.add(self)
 
         # speed vector
         self.speed = pygame.math.Vector2()
@@ -161,6 +162,7 @@ class Thruster(pygame.sprite.Sprite):
                 self.posy = self.posy - amount
 
 
+    # this definitely does not belong in here
     def draw_flame(self, direction):
         # draw the flame
         pygame.draw.ellipse(settings.screen, settings.color_flame, self.rect)
