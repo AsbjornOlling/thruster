@@ -9,7 +9,6 @@ import view
 import events
 import controls
 import player
-import settings
 
 class App:
     def __init__(self):
@@ -33,16 +32,16 @@ class App:
 
         # TODO all this should be a controller object
         # key handling w/ holding
-        settings.keys = pygame.key.get_pressed()
-        # arrow keys for movement
-        if settings.keys[K_RIGHT]:
-            self.p.thrust("E")
-        elif settings.keys[K_LEFT]:
-            self.p.thrust("W")
-        elif settings.keys[K_UP]:
-            self.p.thrust("N")
-        elif settings.keys[K_DOWN]:
-            self.p.thrust("S")
+        #settings.keys = pygame.key.get_pressed()
+        ## arrow keys for movement
+        #if settings.keys[K_RIGHT]:
+        #    self.p.thrust("E")
+        #elif settings.keys[K_LEFT]:
+        #    self.p.thrust("W")
+        #elif settings.keys[K_UP]:
+        #    self.p.thrust("N")
+        #elif settings.keys[K_DOWN]:
+        #    self.p.thrust("S")
 
 
     def on_cleanup(self):
@@ -58,13 +57,10 @@ class App:
 
 if __name__ == "__main__":
     app = App()
-    evm = events.EventManager()
-    # make evm acessible without importing start.py
-    events.eventmanager = evm
-
     kb = controls.KeyboardController()
     
-    evm.add_listener(app)
+    # maybe do this in the constructor
+    events.evm.add_listener(app)
 
     # main loop
     while True:

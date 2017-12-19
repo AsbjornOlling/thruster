@@ -12,8 +12,19 @@ class KeyboardController:
         for event in pygame.event.get():
             if event.type == KEYDOWN:
                 if event.key == K_q:
-                    events.eventmanager.notify(events.Quit())
+                    events.evm.notify(events.Quit())
                     # send quit event
 
-        # held keys
-        self.heldkeys = pygame.key.get_pressed()
+        # handle held keys
+        keystate = pygame.key.get_pressed()
+        if keystate[K_RIGHT]:
+            events.evm.notify(events.PlayerThrust("E"))
+        elif keystate[K_LEFT]:
+            events.evm.notify(events.PlayerThrust("W"))
+        elif keystate[K_UP]:
+            events.evm.notify(events.PlayerThrust("N"))
+        elif keystate[K_DOWN]:
+            events.evm.notify(events.PlayerThrust("S"))
+
+        # send event when new key pressed
+        # send event when key let go

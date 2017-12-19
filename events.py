@@ -1,6 +1,4 @@
 # superclass for objects passed to and from eventManager
-eventmanager = 0
-
 class Event:
     def __init__(self):
         self.name = "Generic Event"
@@ -29,7 +27,22 @@ class EventManager:
         for listener in self.listeners:
             listener.notify(event)
 
+# make the listener object
+evm = EventManager()
+
 
 class Quit(Event):
     def __init__(self):
         pass
+
+
+# this one not in use
+class Key(Event):
+    def __init__(self, keyname, held=False):
+        self.key = keyname
+        self.held = held
+
+
+class PlayerThrust(Event):
+    def __init__(self, direction):
+        self.direction = direction

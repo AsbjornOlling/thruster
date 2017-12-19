@@ -15,6 +15,9 @@ class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
 
+        # add listener
+        events.evm.add_listener(self)
+
         # groups
         game.allsprites.add(self)
         game.singleplayer.add(self)
@@ -86,6 +89,11 @@ class Player(pygame.sprite.Sprite):
     # takes a tuple vector, adds it to speed vector
     def accelerate(self, change):
         self.speed += tuple(c * game.dt for c in change)
+
+
+    def notify(self, event):
+        if isinstance(event, events.PlayerThrust):
+            self.thrust(event.direction)
 
 
 # thruster animation attached to main player
