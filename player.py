@@ -101,8 +101,8 @@ class Thruster(pygame.sprite.Sprite):
     # inits and constants
     posx = 0.0
     posy = 0.0
-    length = 50 # can be height or width
-    width = 10
+    length = 50.0 # can be height or width
+    width = 10.0
     shrinkrate = -0.5 
 
 
@@ -118,6 +118,7 @@ class Thruster(pygame.sprite.Sprite):
         player.thrusters.add(self)
 
         # image because apparently there needs to be one
+        # just a 1x1 alpha pixel png
         self.image = pygame.image.load("0.png").convert_alpha()
 
         # find thruster position relative to player
@@ -136,6 +137,12 @@ class Thruster(pygame.sprite.Sprite):
                 self.posy = player.posy + player.rect.width
 
         # make bounding box
+        self.make_box()
+
+
+    # make bounding box
+    # seems to be broken..
+    def make_box(self):
         if self.side == "W":
             self.rect = pygame.Rect((self.posx - self.length,
                                     self.posy - self.width/2),
@@ -156,7 +163,8 @@ class Thruster(pygame.sprite.Sprite):
 
     def update(self):
         # shrink flame a little
-        self.scale(-1)
+        self.scale(-0.5)
+        # remove sprite when gone
         if self.length < 1:
             self.kill()
 
@@ -164,20 +172,17 @@ class Thruster(pygame.sprite.Sprite):
         # update bounding box with new coords
         self.rect.x = self.posx
         self.rect.y = self.posy
-        #self.draw_flame(self.side)
 
 
+    # extend or shorten the thruster
     def scale(self, amount):
         self.length += amount
-        if self.side == "W" or self.side == "E":
-            if self.side == "W":
-                self.posx = self.posx - amount
-        elif self.side == "N" or self.side == "S":
-            if self.side == "N":
-                self.posy = self.posy - amount
 
+        # adjust position
+        if self.side == "W":
+            self.posx = self.posx - int(amount)
+        elif self.side == "N":
+            self.posy = self.posy - int(amount)
 
-#    # this definitely does not belong in here
-#    def draw_flame(self, direction):
-#        # draw the flame
-#        pygame.draw.ellipse(settings.screen, settings.color_flame, self.rect)
+        # make new bounding box
+        self.make_box()

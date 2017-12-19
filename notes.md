@@ -61,14 +61,42 @@ Controller: on_event()
 
 ## Goals and milestones
 
+### Milestones
+
+**Dec 25:**
+
+	- scaling thruster animation
+	- proper collision detection and bouncing off walls
+	- some kind of placeholder enemy to blow up
+
+**Jan 2:**
+
+	- ability to leave starting room
+	- basic tools to make rooms with enemies in them
+	- velocity bomb
+
 ### Dec. 18
 
 **Goals:**
 
-- start adding Events classes
+- deprecate settings.py
+- make event handler class
+- moved towards mvc design
+- start adding events classes
 
 **Accomplished:**
 
 - deprecate settings.py
 - make event handler class
 - moved towards mvc design
+- start adding events classes
+
+### Dec. 19
+
+**Goals:**
+
+	* thruster animation in view class
+
+**Accomplished:**
+
+

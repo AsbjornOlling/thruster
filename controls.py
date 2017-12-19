@@ -5,7 +5,7 @@ import events
 
 class KeyboardController:
     def __init__(self):
-        self.heldkeys = []
+        pass
 
     def update(self):
         # single press key events
@@ -25,6 +25,3 @@ class KeyboardController:
             events.evm.notify(events.PlayerThrust("N"))
         elif keystate[K_DOWN]:
             events.evm.notify(events.PlayerThrust("S"))
-
-        # send event when new key pressed
-        # send event when key let go
