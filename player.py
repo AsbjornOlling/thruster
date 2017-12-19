@@ -55,9 +55,9 @@ class Player(pygame.sprite.Sprite):
             asprite.posy += delta[1]
 
         # walls - these should probably be their own sprites
-        if self.posx < 0 or self.posx + self.rect.width > view.width: 
+        if self.posx < 0 or self.posx + self.rect.width > view.vw.width: 
             self.speed[0] *= self.bounce_factor
-        if self.posy < 0 or self.posy + self.rect.height > view.height: 
+        if self.posy < 0 or self.posy + self.rect.height > view.vw.height: 
             self.speed[1] *= self.bounce_factor
 
 

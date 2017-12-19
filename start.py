@@ -70,7 +70,7 @@ if __name__ == "__main__":
         # update all sprites
         game.allsprites.update()
         # draw everything
-        view.render()
+        view.vw.render()
 
         # tick
-        game.dt = game.clock.tick(view.fps)
+        game.dt = game.clock.tick(view.vw.fps)
