@@ -62,7 +62,7 @@ class Player(pygame.sprite.Sprite):
         thruster_found = False
         for thruster in self.thrusters:
             if thruster.side == direction:
-                thurster_found = True
+                thruster_found = True
                 thruster.scale(1)
         # make one if it wasn't there
         if not thruster_found:
