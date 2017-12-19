@@ -6,8 +6,8 @@ import events
 import settings
 
 class Player(pygame.sprite.Sprite):
-    posx = 0.0 # double precision pos
-    posy = 0.0
+    posx = 250.0 # double precision pos
+    posy = 250.0
     speedmod = 0.0005
     bounce_factor = -0.8 # must be between -1 and 0
     
@@ -49,11 +49,6 @@ class Player(pygame.sprite.Sprite):
         self.posx += delta[0]
         self.posy += delta[1]
 
-        # move all attached sprites
-        for asprite in self.attached:
-            asprite.posx += delta[0]
-            asprite.posy += delta[1]
-
         # walls - these should probably be their own sprites
         if self.posx < 0 or self.posx + self.rect.width > view.vw.width: 
             self.speed[0] *= self.bounce_factor
@@ -69,7 +64,6 @@ class Player(pygame.sprite.Sprite):
             if thruster.side == direction:
                 thurster_found = True
                 thruster.scale(1)
-        
         # make one if it wasn't there
         if not thruster_found:
             thruster = Thruster(direction)
@@ -101,7 +95,7 @@ class Thruster(pygame.sprite.Sprite):
     # inits and constants
     posx = 0.0
     posy = 0.0
-    length = 50.0 # can be height or width
+    length = 20.0 # can be height or width
     width = 10.0
     shrinkrate = -0.5 
 
@@ -110,55 +104,55 @@ class Thruster(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         
         self.side = direction
-        player = game.singleplayer.sprite
+        self.player = game.singleplayer.sprite
 
         # groups
         game.allsprites.add(self)
-        player.attached.add(self)
-        player.thrusters.add(self)
+        self.player.attached.add(self)
+        self.player.thrusters.add(self)
 
         # image because apparently there needs to be one
         # just a 1x1 alpha pixel png
         self.image = pygame.image.load("0.png").convert_alpha()
 
-        # find thruster position relative to player
+        # find thruster position
         if self.side == "W" or self.side == "E":
-            self.posy = player.posy + player.rect.height/2 - self.length/2
+            self.posy = self.player.posy + self.player.rect.height/2 - self.width/2
             if self.side == "W":
-                self.posx = player.posx - self.width
+                self.posx = self.player.posx - self.length
             elif self.side == "E":
-                self.posx = player.posx + self.width
+                self.posx = self.player.posx + self.player.rect.width
 
         elif self.side == "N" or self.side == "S":
-            self.posx = player.posx + player.rect.width/2 - self.width/2
+            self.posx = self.player.posx + self.player.rect.width/2 - self.width/2
             if self.side == "N":
-                self.posy = player.posy - self.length
+                self.posy = self.player.posy - self.length
             if self.side == "S":
-                self.posy = player.posy + player.rect.width
+                self.posy = self.player.posy + self.player.rect.width
 
         # make bounding box
-        self.make_box()
+        self.rect = self.make_box()
 
 
     # make bounding box
-    # seems to be broken..
     def make_box(self):
-        if self.side == "W":
-            self.rect = pygame.Rect((self.posx - self.length,
-                                    self.posy - self.width/2),
-                                    (self.length, self.width))
-        elif self.side == "E":
-            self.rect = pygame.Rect((self.posx,
-                                    self.posy - self.width/2),
-                                    (self.length, self.width))
-        elif self.side == "N":
-            self.rect = pygame.Rect((self.posx - self.width/2,
-                                    self.posy - self.length),
-                                    (self.width, self.length))
-        elif self.side == "S":
-            self.rect = pygame.Rect((self.posx - self.width/2,
-                                    self.posy),
-                                    (self.width, self.length))
+        if self.side == "W" or self.side == "E":
+            self.posy = self.player.posy + self.player.rect.height/2 - self.width/2
+            if self.side == "W":
+                self.posx = self.player.posx - self.length
+            elif self.side == "E":
+                self.posx = self.player.posx + self.player.rect.width
+            # return horizontal thruster
+            return pygame.Rect((self.posx, self.posy), (self.length, self.width))
+
+        elif self.side == "N" or self.side == "S":
+            self.posx = self.player.posx + self.player.rect.width/2 - self.width/2
+            if self.side == "N":
+                self.posy = self.player.posy - self.length
+            elif self.side == "S":
+                self.posy = self.player.posy + self.player.rect.height
+            # return vertical thruster
+            return pygame.Rect((self.posx, self.posy), (self.width, self.length))
 
 
     def update(self):
@@ -168,21 +162,12 @@ class Thruster(pygame.sprite.Sprite):
         if self.length < 1:
             self.kill()
 
-        # movement is handled in player class
-        # update bounding box with new coords
-        self.rect.x = self.posx
-        self.rect.y = self.posy
+        self.rect = self.make_box()
 
 
     # extend or shorten the thruster
     def scale(self, amount):
         self.length += amount
-
-        # adjust position
-        if self.side == "W":
-            self.posx = self.posx - int(amount)
-        elif self.side == "N":
-            self.posy = self.posy - int(amount)
 
         # make new bounding box
         self.make_box()
