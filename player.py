@@ -39,22 +39,48 @@ class Player(pygame.sprite.Sprite):
     def update(self):
         # get new position
         self.move()
+
+        # bounce off stuff
+        hardcolls = pygame.sprite.spritecollide(self, game.hardcollide, 0)
+        for obj in hardcolls: 
+            # collide up
+            if (self.rect.top < obj.rect.bottom 
+            and self.rect.top > obj.rect.top
+            and self.rect.bottom > obj.rect.bottom):
+                self.speed[1] *= self.bounce_factor
+                self.posy = obj.rect.bottom + 1
+
+            # collide down
+            elif (self.rect.bottom < obj.rect.bottom
+            and self.rect.bottom > obj.rect.top
+            and self.rect.top < obj.rect.top):
+                self.speed[1] *= self.bounce_factor
+                self.posy = obj.rect.bottom - self.rect.height - 1
+
+            # collide left
+            elif (self.rect.left > obj.rect.left
+            and self.rect.left < obj.rect.right
+            and self.rect.right > obj.rect.right):
+                self.speed[0] *= self.bounce_factor
+                self.posx = obj.rect.right + 1
+
+            # collide right
+            elif (self.rect.right < obj.rect.right
+            and self.rect.right > obj.rect.left
+            and self.rect.left < obj.rect.left):
+                self.speed[0] *= self.bounce_factor
+                self.posx = obj.rect.left - self.rect.width - 1
+
         # update bounding box position
         self.rect.x = self.posx
         self.rect.y = self.posy
 
 
+    # calculate new position
     def move(self):
-        # calculate new position
         delta = self.speed * game.dt * self.speedmod
         self.posx += delta[0]
         self.posy += delta[1]
-
-        # walls - these should probably be their own sprites
-        if self.posx < 0 or self.posx + self.rect.width > view.vw.width: 
-            self.speed[0] *= self.bounce_factor
-        if self.posy < 0 or self.posy + self.rect.height > view.vw.height: 
-            self.speed[1] *= self.bounce_factor
 
 
     # thruster sprite and acceleration
@@ -91,10 +117,11 @@ class Player(pygame.sprite.Sprite):
 
 
 # thruster animation attached to main player
+# grows, shrinks and collides - but doesnt't accelerate shit
 class Thruster(pygame.sprite.Sprite):
     # constants for all classes
     shrinkrate = -0.1 
-    growthrate = 0.15 
+    growthrate = 0.12 
 
     def __init__(self, direction):
         pygame.sprite.Sprite.__init__(self)
