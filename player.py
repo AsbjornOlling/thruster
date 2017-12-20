@@ -69,9 +69,6 @@ class Player(pygame.sprite.Sprite):
             thruster = Thruster(direction)
             self.thrusters.add(thruster)
 
-        # grow thruster
-        thruster.scale(thruster.growthrate)
-
         # accelerate
         if direction == "W":
             self.accelerate((1, 0))
@@ -101,8 +98,11 @@ class Thruster(pygame.sprite.Sprite):
 
     def __init__(self, direction):
         pygame.sprite.Sprite.__init__(self)
-        
-        # useful parameters
+
+        # register as listener
+        events.evm.add_listener(self)
+
+        # constant params
         self.side = direction
         self.player = game.singleplayer.sprite
 
@@ -165,8 +165,14 @@ class Thruster(pygame.sprite.Sprite):
         # remove sprite when gone
         if self.length < 1:
             self.kill()
-
+        # make bounding box at new size
         self.rect = self.make_box()
+
+
+    def notify(self, event):
+        if (isinstance(event, events.PlayerThrust)
+        and event.direction == self.side):
+            self.scale(self.growthrate)
 
 
     # extend or shorten the thruster
