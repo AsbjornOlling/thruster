@@ -6,9 +6,10 @@ import events
 import settings
 
 class Player(pygame.sprite.Sprite):
-    posx = 250.0 # double precision pos
-    posy = 250.0
-    speedmod = 0.0005
+    # starting position
+    posx = view.vw.width/2
+    posy = view.vw.height/2
+    speedmod = 0.0001
     bounce_factor = -0.8 # must be between -1 and 0
     
 
@@ -63,11 +64,13 @@ class Player(pygame.sprite.Sprite):
         for thruster in self.thrusters:
             if thruster.side == direction:
                 thruster_found = True
-                thruster.scale(1)
         # make one if it wasn't there
         if not thruster_found:
             thruster = Thruster(direction)
             self.thrusters.add(thruster)
+
+        # grow thruster
+        thruster.scale(thruster.growthrate)
 
         # accelerate
         if direction == "W":
@@ -92,17 +95,14 @@ class Player(pygame.sprite.Sprite):
 
 # thruster animation attached to main player
 class Thruster(pygame.sprite.Sprite):
-    # inits and constants
-    posx = 0.0
-    posy = 0.0
-    length = 20.0 # can be height or width
-    width = 10.0
-    shrinkrate = -0.5 
-
+    # constants for all classes
+    shrinkrate = -0.1 
+    growthrate = 0.15 
 
     def __init__(self, direction):
         pygame.sprite.Sprite.__init__(self)
         
+        # useful parameters
         self.side = direction
         self.player = game.singleplayer.sprite
 
@@ -110,6 +110,10 @@ class Thruster(pygame.sprite.Sprite):
         game.allsprites.add(self)
         self.player.attached.add(self)
         self.player.thrusters.add(self)
+
+        # set initial size
+        self.length = 40.0 # can be height or width
+        self.width = 10.0
 
         # image because apparently there needs to be one
         # just a 1x1 alpha pixel png
@@ -157,7 +161,7 @@ class Thruster(pygame.sprite.Sprite):
 
     def update(self):
         # shrink flame a little
-        self.scale(-0.5)
+        self.scale(self.shrinkrate)
         # remove sprite when gone
         if self.length < 1:
             self.kill()
@@ -167,7 +171,4 @@ class Thruster(pygame.sprite.Sprite):
 
     # extend or shorten the thruster
     def scale(self, amount):
-        self.length += amount
-
-        # make new bounding box
-        self.make_box()
+        self.length += amount * game.dt
