@@ -9,8 +9,9 @@ class Viewer():
     fps = 60
 
     # colors
-    color_bg = (0, 0, 0)        # just black
-    color_flame = (128, 0, 0)   # just red
+    color_bg = (0, 0, 0)            # just black
+    color_flame = (128, 0, 0)       # just red
+    color_wall = (128, 128, 128)    # gray
 
 
     def __init__(self):
@@ -36,17 +37,27 @@ class Viewer():
         for rect in game.allsprites.draw(self.screen):
             self.update_rects.append(rect)
 
-        # draw player thrusters
+        self.draw_walls()
+        self.draw_thrusters()
+
+        # draw and update changed rects only
+        pygame.display.update(self.update_rects)
+
+    
+    # draw player's thrusters, add rects to lists
+    def draw_thrusters(self):
         for thruster in game.singleplayer.sprite.thrusters:
             pygame.draw.ellipse(self.screen, self.color_flame, thruster.rect)
             self.update_rects.append(thruster.rect)
             self.update_rects_next.append(thruster.rect)
 
-        # needs to also update previous location of thruster
-
-        # draw and update changed rects only
-        pygame.display.update(self.update_rects)
-
+    
+    # draw current room's walls, add rects to lists
+    def draw_walls(self):
+        room = game.currentroom
+        for wall in room.walls:
+            pygame.draw.rect(self.screen, self.color_wall, wall.rect)
+            self.update_rects.append(wall.rect)
 
 # the actual object
 vw = Viewer()
