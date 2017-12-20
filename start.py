@@ -16,7 +16,7 @@ class App:
         pygame.init()
         pygame.key.set_repeat(50, 30)
 
-        #display settings
+        # display settings
         pygame.display.set_caption("THRUSTER")
 
         # make player obj
@@ -29,19 +29,6 @@ class App:
             # exit game
             if event.type == pygame.QUIT:
                 self.on_cleanup()
-
-        # TODO all this should be a controller object
-        # key handling w/ holding
-        #settings.keys = pygame.key.get_pressed()
-        ## arrow keys for movement
-        #if settings.keys[K_RIGHT]:
-        #    self.p.thrust("E")
-        #elif settings.keys[K_LEFT]:
-        #    self.p.thrust("W")
-        #elif settings.keys[K_UP]:
-        #    self.p.thrust("N")
-        #elif settings.keys[K_DOWN]:
-        #    self.p.thrust("S")
 
 
     def on_cleanup(self):

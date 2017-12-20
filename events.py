@@ -9,23 +9,21 @@ class EventManager:
     def __init__(self):
         self.listeners = []
 
-
     # add a listener
     def add_listener(self, listener):
         if listener not in self.listeners:
             self.listeners.append(listener)
-
 
     # remove a listener
     def del_listener(self, listener):
         if listener in self.listeners:
             self.listeners.remove(listener)
     
-
     # send event to all listeners
     def notify(self, event):
         for listener in self.listeners:
             listener.notify(event)
+
 
 # make the listener object
 evm = EventManager()
@@ -34,13 +32,6 @@ evm = EventManager()
 class Quit(Event):
     def __init__(self):
         pass
-
-
-# this one not in use
-class Key(Event):
-    def __init__(self, keyname, held=False):
-        self.key = keyname
-        self.held = held
 
 
 class PlayerThrust(Event):

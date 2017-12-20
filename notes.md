@@ -99,4 +99,21 @@ Controller: on_event()
 
 **Accomplished:**
 
+	* thruster animation in view class
+	* fixed thruster position bug in player.py
 
+### Dec. 20
+
+**Goals:**
+
+	* make growth / shrink rates of thruster better
+	* new room walls
+	* collision detection for bouncing off walls
+
+**Accomplished:**
+	* make growth / shrink rates of thruster better
+	* debugged thruster sprite a bunch
+	* new room walls
+	* room class
+	* wall drawer function
+	* collision detection for bouncing off walls

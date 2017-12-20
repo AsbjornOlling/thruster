@@ -59,5 +59,6 @@ class Viewer():
             pygame.draw.rect(self.screen, self.color_wall, wall.rect)
             self.update_rects.append(wall.rect)
 
-# the actual object
+
+# the actual viewer object
 vw = Viewer()

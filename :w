@@ -6,7 +6,7 @@ import events
 import settings
 
 class Player(pygame.sprite.Sprite):
-    # starting position, float precision
+    # starting position
     posx = view.vw.width/2
     posy = view.vw.height/2
     speedmod = 0.0001
@@ -45,35 +45,18 @@ class Player(pygame.sprite.Sprite):
         for obj in hardcolls: 
             # collide up
             if (self.rect.top < obj.rect.bottom 
-            and self.rect.top > obj.rect.top
-            and self.rect.bottom > obj.rect.bottom):
-                print("Collide up")
+            and self.rect.top > obj.rect.top):
                 self.speed[1] *= self.bounce_factor
                 self.posy = obj.rect.bottom + 1
 
             # collide down
-            elif (self.rect.bottom > obj.rect.top
-            and self.rect.bottom < obj.rect.bottom
-            and self.rect.top < obj.rect.top):
-                print("Collide down")
+            elif (self.rect.bottom < obj.rect.bottom
+            and self.rect.bottom > obj.rect.top):
                 self.speed[1] *= self.bounce_factor
-                self.posy = obj.rect.top - self.rect.height
+                self.posy = obj.rect.bottom - 1
 
             # collide left
             elif (self.rect.left > obj.rect.left
-            and self.rect.left < obj.rect.right
-            and self.rect.right > obj.rect.right):
-                print("Collide left")
-                self.speed[0] *= self.bounce_factor
-                self.posx = obj.rect.right + 1
-
-            # collide right
-            elif (self.rect.right < obj.rect.right
-            and self.rect.right > obj.rect.left
-            and self.rect.left < obj.rect.left):
-                print("Collide right")
-                self.speed[0] *= self.bounce_factor
-                self.posx = obj.rect.left - self.rect.width - 1
 
         # update bounding box position
         self.rect.x = self.posx
