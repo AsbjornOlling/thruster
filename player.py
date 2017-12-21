@@ -10,6 +10,8 @@ class Player(pygame.sprite.Sprite):
     bounce_factor = -0.5 # must be between -1 and 0
     width = 50
     height = 50
+    posx = view.vw.width/2 + 100.0
+    posy = view.vw.height/2 + 100.0
 
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
@@ -25,8 +27,6 @@ class Player(pygame.sprite.Sprite):
 
         # speed vector and initial position
         self.speed = pygame.math.Vector2()
-        self.posx = view.vw.width/2
-        self.posy = view.vw.height/2
 
         # image and bounding box
         self.image = pygame.image.load("ship_placeholder.png").convert()
@@ -80,45 +80,47 @@ class Player(pygame.sprite.Sprite):
         # bounce off of stuff
         hardcolls = pygame.sprite.spritecollide(self, game.hardcollide, 0)
         for obj in hardcolls: 
-            # collide up
-            if (self.rect.top < obj.rect.bottom 
-            and self.rect.top > obj.rect.top
-            and self.rect.bottom > obj.rect.bottom):
-                print("Collide up")
-                self.speed[1] *= self.bounce_factor
-                self.posy = obj.rect.bottom + 1
+            print("RUNNING COLLIDESTUFF")
+            # find closest point in obj
+            closestx = self.rect.centerx
+            if self.rect.centerx > obj.rect.right:
+                closestx = obj.rect.right
+            elif self.rect.centerx < obj.rect.left:
+                closestx = obj.rect.left
+            closesty = self.rect.centery
+            if self.rect.centery > obj.rect.bottom:
+                closesty = obj.rect.bottom
+            elif self.rect.centery < obj.rect.top:
+                closesty = obj.rect.top
 
-            # collide down
-            elif (self.rect.bottom > obj.rect.top
-            and self.rect.bottom < obj.rect.bottom
-            and self.rect.top < obj.rect.top):
-                print("Collide down")
-                self.speed[1] *= self.bounce_factor
-                self.posy = obj.rect.top - self.rect.height
 
-            # collide left
-            elif (self.rect.left > obj.rect.left
-            and self.rect.left < obj.rect.right
-            and self.rect.right > obj.rect.right):
-                print("Collide left")
+            # find angle between closest point and player center
+            y = self.rect.centery - closesty
+            x = self.rect.centerx - closestx
+            #print("X: "+str(x) + " Y: "+str(y))
+            angle = math.atan2(y, x)
+
+            if angle == 0 or angle == math.pi:
                 self.speed[0] *= self.bounce_factor
-                self.posx = obj.rect.right + 1
+                if angle == 0:
+                    self.posx = self.rect.left - self.rect.width
+                elif angle == math.pi:
+                    self.posx = self.rect.right
+            elif angle == math.pi/2 or angle == -1*math.pi/2:
+                self.speed[1] *= self.bounce_factor
+                if angle == math.pi/2:
+                    self.posy = obj.rect.bottom
+                if angle == -1*math.pi/2:
+                    self.posy = obj.rect.top - self.rect.height
 
-            # collide right
-            elif (self.rect.right < obj.rect.right
-            and self.rect.right > obj.rect.left
-            and self.rect.left < obj.rect.left):
-                print("Collide right")
-                self.speed[0] *= self.bounce_factor
-                self.posx = obj.rect.left - self.rect.width - 1
-        
+            # determine side from that
 
 # thruster animation attached to main player
 # grows, shrinks and collides - but doesnt't accelerate shit
 class Thruster(pygame.sprite.Sprite):
     # constants for all classes
-    shrinkrate = -0.2 
-    growthrate = 0.22 
+    shrinkrate = -0.20
+    growthrate = 0.22
 
     def __init__(self, direction):
         pygame.sprite.Sprite.__init__(self)
