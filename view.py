@@ -1,6 +1,7 @@
 # viewer module
 import pygame
 import game
+import events
 
 class Viewer():
     # some constants
@@ -18,20 +19,23 @@ class Viewer():
         # pygame display surface
         self.screen = pygame.display.set_mode((self.width, self.height))
 
+        # add listener
+        events.evm.add_listener(self)
+
         # lists of areas to update
         self.update_rects = []
         self.update_rects_next = []
 
 
+    def notify(self, event):
+        if isinstance(event, events.WallDeath):
+            # draw over wall
+            self.update_rects.append(event.rect)
+
+
     def render(self):
         # clear screen
         self.screen.fill(self.color_bg)
-
-        # reset lists
-        self.update_rects = []
-        for rect in self.update_rects_next:
-            self.update_rects.append(rect)
-        self.update_rects_next = []
 
         # draw all sprites and get rects
         for rect in game.allsprites.draw(self.screen):
@@ -42,6 +46,12 @@ class Viewer():
 
         # draw and update changed rects only
         pygame.display.update(self.update_rects)
+
+        # reset lists
+        self.update_rects = []
+        for rect in self.update_rects_next:
+            self.update_rects.append(rect)
+        self.update_rects_next = []
 
     
     # draw player's thrusters, add rects to lists

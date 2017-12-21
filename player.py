@@ -6,12 +6,11 @@ import events
 import settings
 
 class Player(pygame.sprite.Sprite):
-    # starting position, float precision
-    posx = view.vw.width/2
-    posy = view.vw.height/2
+    # starting position on spawn, float precision
     speedmod = 0.0001
-    bounce_factor = -0.8 # must be between -1 and 0
-    
+    bounce_factor = -0.4 # must be between -1 and 0
+    width = 50
+    height = 50
 
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
@@ -19,18 +18,20 @@ class Player(pygame.sprite.Sprite):
         # add listener
         events.evm.add_listener(self)
 
-        # groups
+        # sprite groups
         game.allsprites.add(self)
         game.singleplayer.add(self)
         self.attached = pygame.sprite.Group()
         self.thrusters = pygame.sprite.Group()
 
-        # speed vector
+        # speed vector and initial position
         self.speed = pygame.math.Vector2()
+        self.posx = view.vw.width/2
+        self.posy = view.vw.height/2
 
         # load and scale image
         self.image = pygame.image.load("ship_placeholder.png").convert()
-        self.image = pygame.transform.scale(self.image, (50, 50))
+        self.image = pygame.transform.scale(self.image, (width, height))
 
         # bounding box
         self.rect = self.image.get_rect()
@@ -144,7 +145,7 @@ class Thruster(pygame.sprite.Sprite):
 
         # set initial size
         self.length = 40.0 # can be height or width
-        self.width = 10.0
+        self.width = 12.0
 
         # image because apparently there needs to be one
         # just a 1x1 alpha pixel png

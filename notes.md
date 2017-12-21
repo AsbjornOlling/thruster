@@ -117,3 +117,14 @@ Controller: on_event()
 	* room class
 	* wall drawer function
 	* collision detection for bouncing off walls
+
+### Dec. 21
+
+**Goals:**
+
+	* Placeholder enemy/crate to kill w/ thruster (maybe color change too)
+	* Clean up code for readability
+
+**Accomplished:**
+
+	* WallDestructible class, w/ health and reacts to collision w/ thrust

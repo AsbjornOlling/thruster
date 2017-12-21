@@ -37,3 +37,8 @@ class Quit(Event):
 class PlayerThrust(Event):
     def __init__(self, direction):
         self.direction = direction
+
+
+class WallDeath(Event):
+    def __init__(self, rect):
+        self.rect = rect
