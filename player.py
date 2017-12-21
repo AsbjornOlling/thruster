@@ -15,7 +15,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
 
-        # add listener
+        # event listener
         events.evm.add_listener(self)
 
         # sprite groups
@@ -29,19 +29,57 @@ class Player(pygame.sprite.Sprite):
         self.posx = view.vw.width/2
         self.posy = view.vw.height/2
 
-        # load and scale image
+        # image and bounding box
         self.image = pygame.image.load("ship_placeholder.png").convert()
-        self.image = pygame.transform.scale(self.image, (width, height))
-
-        # bounding box
+        self.image = pygame.transform.scale(self.image, (self.width, self.height))
         self.rect = self.image.get_rect()
 
-
+    # run on every tick
     def update(self):
-        # get new position
         self.move()
 
-        # bounce off stuff
+        # update bounding box position
+        self.rect.x = self.posx
+        self.rect.y = self.posy
+
+    # run on event receive
+    def notify(self, event):
+        if isinstance(event, events.PlayerThrust):
+            self.thrust(event.direction)
+
+    # thruster sprite and acceleration
+    def thrust(self, direction):
+        # look for thruster
+        thruster_found = False
+        for thruster in self.thrusters:
+            if thruster.side == direction:
+                thruster_found = True
+        # make one if it wasn't there
+        if not thruster_found:
+            thruster = Thruster(direction)
+            self.thrusters.add(thruster)
+
+        # accelerate
+        if direction == "W":
+            self.accelerate((1, 0))
+        elif direction == "E":
+            self.accelerate((-1, 0))
+        elif direction == "N":
+            self.accelerate((0, 1))
+        elif direction == "S":
+            self.accelerate((0, -1))
+
+    # adds a vector argument to the speed vector
+    def accelerate(self, change):
+        self.speed += tuple(c * game.dt for c in change)
+
+    # calculate new position, including bouncing
+    def move(self):
+        delta = self.speed * game.dt * self.speedmod
+        self.posx += delta[0]
+        self.posy += delta[1]
+
+        # bounce off of stuff
         hardcolls = pygame.sprite.spritecollide(self, game.hardcollide, 0)
         for obj in hardcolls: 
             # collide up
@@ -75,51 +113,7 @@ class Player(pygame.sprite.Sprite):
                 print("Collide right")
                 self.speed[0] *= self.bounce_factor
                 self.posx = obj.rect.left - self.rect.width - 1
-
-        # update bounding box position
-        self.rect.x = self.posx
-        self.rect.y = self.posy
-
-
-    # calculate new position
-    def move(self):
-        delta = self.speed * game.dt * self.speedmod
-        self.posx += delta[0]
-        self.posy += delta[1]
-
-
-    # thruster sprite and acceleration
-    def thrust(self, direction):
-        # look for thruster
-        thruster_found = False
-        for thruster in self.thrusters:
-            if thruster.side == direction:
-                thruster_found = True
-        # make one if it wasn't there
-        if not thruster_found:
-            thruster = Thruster(direction)
-            self.thrusters.add(thruster)
-
-        # accelerate
-        if direction == "W":
-            self.accelerate((1, 0))
-        elif direction == "E":
-            self.accelerate((-1, 0))
-        elif direction == "N":
-            self.accelerate((0, 1))
-        elif direction == "S":
-            self.accelerate((0, -1))
         
-    
-    # takes a tuple vector, adds it to speed vector
-    def accelerate(self, change):
-        self.speed += tuple(c * game.dt for c in change)
-
-
-    def notify(self, event):
-        if isinstance(event, events.PlayerThrust):
-            self.thrust(event.direction)
-
 
 # thruster animation attached to main player
 # grows, shrinks and collides - but doesnt't accelerate shit
@@ -131,46 +125,48 @@ class Thruster(pygame.sprite.Sprite):
     def __init__(self, direction):
         pygame.sprite.Sprite.__init__(self)
 
-        # register as listener
+        # event listener
         events.evm.add_listener(self)
 
-        # constant params
-        self.side = direction
+        # the sprite that thruster is attached to
         self.player = game.singleplayer.sprite
 
-        # groups
+        # sprite groups
         game.allsprites.add(self)
         self.player.attached.add(self)
         self.player.thrusters.add(self)
 
-        # set initial size
+        # mount-side and size
+        self.side = direction
         self.length = 40.0 # can be height or width
         self.width = 12.0
 
-        # image because apparently there needs to be one
-        # just a 1x1 alpha pixel png
+        # empty image
         self.image = pygame.image.load("0.png").convert_alpha()
 
-        # find thruster position
-        if self.side == "W" or self.side == "E":
-            self.posy = self.player.posy + self.player.rect.height/2 - self.width/2
-            if self.side == "W":
-                self.posx = self.player.posx - self.length
-            elif self.side == "E":
-                self.posx = self.player.posx + self.player.rect.width
-
-        elif self.side == "N" or self.side == "S":
-            self.posx = self.player.posx + self.player.rect.width/2 - self.width/2
-            if self.side == "N":
-                self.posy = self.player.posy - self.length
-            if self.side == "S":
-                self.posy = self.player.posy + self.player.rect.width
-
-        # make bounding box
+        # bounding box
         self.rect = self.make_box()
 
+    # run on every tick
+    def update(self):
+        self.scale(self.shrinkrate)
+        if self.length < 1:
+            self.kill()
+        # make bounding box at new size
+        self.rect = self.make_box()
 
-    # make bounding box
+    # handle events
+    def notify(self, event):
+        # grow when player thrusts
+        if (isinstance(event, events.PlayerThrust)
+        and event.direction == self.side):
+            self.scale(self.growthrate)
+
+    # extend or shorten the thruster
+    def scale(self, amount):
+        self.length += amount * game.dt
+
+    # make bounding box considering player pos, thruster size, and side mounted
     def make_box(self):
         if self.side == "W" or self.side == "E":
             self.posy = self.player.posy + self.player.rect.height/2 - self.width/2
@@ -189,24 +185,3 @@ class Thruster(pygame.sprite.Sprite):
                 self.posy = self.player.posy + self.player.rect.height
             # return vertical thruster
             return pygame.Rect((self.posx, self.posy), (self.width, self.length))
-
-
-    def update(self):
-        # shrink flame a little
-        self.scale(self.shrinkrate)
-        # remove sprite when gone
-        if self.length < 1:
-            self.kill()
-        # make bounding box at new size
-        self.rect = self.make_box()
-
-
-    def notify(self, event):
-        if (isinstance(event, events.PlayerThrust)
-        and event.direction == self.side):
-            self.scale(self.growthrate)
-
-
-    # extend or shorten the thruster
-    def scale(self, amount):
-        self.length += amount * game.dt
