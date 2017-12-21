@@ -45,7 +45,7 @@ class Viewer():
     # handle events
     def notify(self, event):
         # make sure to update dead wall
-        if isinstance(event, events.WallDeath):
+        if isinstance(event, events.ObjDeath):
             self.update_rects.append(event.rect)
     
     # draw sprites and get update rects

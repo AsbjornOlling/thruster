@@ -1,9 +1,3 @@
-# superclass for objects passed to and from eventManager
-class Event:
-    def __init__(self):
-        self.name = "Generic Event"
-
-
 # mediator between Control, Model and Viewer 
 class EventManager:
     def __init__(self):
@@ -29,16 +23,22 @@ class EventManager:
 evm = EventManager()
 
 
+# superclass for events
+class Event:
+    def __init__(self):
+        self.name = "Generic Event"
+
+# on game quit, Q-key
 class Quit(Event):
     def __init__(self):
         pass
 
-
+# player movement, arrow-keys
 class PlayerThrust(Event):
     def __init__(self, direction):
         self.direction = direction
 
-
-class WallDeath(Event):
+# when an object dies
+class ObjDeath(Event):
     def __init__(self, rect):
         self.rect = rect

@@ -71,13 +71,12 @@ class WallDestructible(Wall):
         # look for collision with player thrusters
         collisions = pygame.sprite.spritecollide(self, singleplayer.sprite.thrusters, 0)
         for thruster in collisions:
-            print("Wall DAMAGE")
             self.health -= thruster.length * dt / 1000
 
         # kill if no health
         if self.health < 1:
             print("Wall DEATH")
-            events.evm.notify(events.WallDeath(self.rect))
+            events.evm.notify(events.ObjDeath(self.rect))
             self.kill()
 
 
