@@ -3,12 +3,11 @@ import pygame
 import game
 import view
 import events
-import settings
 
 class Player(pygame.sprite.Sprite):
     # starting position on spawn, float precision
     speedmod = 0.0001
-    bounce_factor = -0.4 # must be between -1 and 0
+    bounce_factor = -0.5 # must be between -1 and 0
     width = 50
     height = 50
 
@@ -37,7 +36,6 @@ class Player(pygame.sprite.Sprite):
     # run on every tick
     def update(self):
         self.move()
-
         # update bounding box position
         self.rect.x = self.posx
         self.rect.y = self.posy
@@ -119,8 +117,8 @@ class Player(pygame.sprite.Sprite):
 # grows, shrinks and collides - but doesnt't accelerate shit
 class Thruster(pygame.sprite.Sprite):
     # constants for all classes
-    shrinkrate = -0.1 
-    growthrate = 0.12 
+    shrinkrate = -0.2 
+    growthrate = 0.22 
 
     def __init__(self, direction):
         pygame.sprite.Sprite.__init__(self)

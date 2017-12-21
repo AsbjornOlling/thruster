@@ -1,6 +1,14 @@
 # Thruster game
 # WIP
 
+import pygame
+from pygame.locals import *
+import game
+import view
+import events
+import controls
+import player
+
 class App:
     def __init__(self):
         pygame.init()
@@ -22,14 +30,6 @@ class App:
 
 
 if __name__ == "__main__":
-    import pygame
-    from pygame.locals import *
-    import game
-    import view
-    import events
-    import controls
-    import player
-
     app = App()
     kb = controls.KeyboardController()
     
