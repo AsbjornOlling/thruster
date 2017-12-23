@@ -48,6 +48,9 @@ class Wall(pygame.sprite.Sprite):
         # empty image
         self.image = pygame.image.load("0.png")
 
+        # set color
+        self.color = view.vw.color_wall
+
         # rect using constructor args
         self.rect = pygame.Rect(coordtuple, sizetuple)
 
@@ -57,14 +60,18 @@ class WallDestructible(Wall):
     def __init__(self, coordtuple, sizetuple):
         super(WallDestructible, self).__init__(coordtuple, sizetuple)
         self.health = 100
+        self.color = view.vw.color_walldestructible
 
     # run on every tick
     def update(self):
-        # detect collision with player thrusters
+        # check for collision with player thrusters
         collisions = pygame.sprite.spritecollide(self, singleplayer.sprite.thrusters, 0)
         for thruster in collisions:
             # subtract health
             self.health -= thruster.length * dt / 1000
+            # change color
+            self.color = (self.color[0] + thruster.length / 55,
+                            self.color[1], self.color[2])
 
         # kill if no health
         if self.health < 1:

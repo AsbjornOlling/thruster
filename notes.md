@@ -1,6 +1,6 @@
 # Some design notes
 
-### General Brainstorm
+### Architecture overview
 
 * App 
     * clock
@@ -37,7 +37,7 @@
 				- pause
 
 
-### Who talks to whom
+### Who talks to whom (mediator scratch notes)
 
 **MVC Model:**
 
@@ -58,6 +58,20 @@ Controller: on_event()
 *Controller to model:* all kb input, mouse input, exit signals
 *Controller to viewer:* n/a
 
+
+### Collision angles:
+
+Right:
+	-Pi/4 - Pi/4
+
+Left: 
+	-3Pi/4 - 3Pi/4
+
+Up:
+	Pi/4 - 3Pi/4
+
+Down:
+	-Pi/4 - 3Pi/4:
 
 ## Goals and milestones
 

@@ -13,6 +13,7 @@ class Viewer():
     color_bg = (0, 0, 0)            # just black
     color_flame = (128, 0, 0)       # just red
     color_wall = (128, 128, 128)    # gray
+    color_walldestructible = (128, 64, 64)    # orange-y
 
     def __init__(self):
         # display surface
@@ -57,7 +58,7 @@ class Viewer():
     def draw_walls(self):
         room = game.currentroom
         for wall in room.walls:
-            pygame.draw.rect(self.screen, self.color_wall, wall.rect)
+            pygame.draw.rect(self.screen, wall.color, wall.rect)
             self.update_rects.append(wall.rect)
 
     # draw player's thrusters and get update rects

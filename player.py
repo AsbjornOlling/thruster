@@ -7,7 +7,7 @@ import events
 class Player(pygame.sprite.Sprite):
     # starting position on spawn, float precision
     speedmod = 0.0001
-    bounce_factor = -0.9 # must be between -1 and 0
+    bounce_factor = -0.5 # must be between -1 and 0
     width = 50
     height = 50
     posx = view.vw.width/2 + 100.0
