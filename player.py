@@ -7,7 +7,7 @@ import events
 class Player(pygame.sprite.Sprite):
     # starting position on spawn, float precision
     speedmod = 0.0001
-    bounce_factor = -0.5 # must be between -1 and 0
+    bounce_factor = -0.9 # must be between -1 and 0
     width = 50
     height = 50
     posx = view.vw.width/2 + 100.0
@@ -80,8 +80,6 @@ class Player(pygame.sprite.Sprite):
         # bounce off of stuff
         hardcolls = pygame.sprite.spritecollide(self, game.hardcollide, 0)
         for obj in hardcolls: 
-            print("RUNNING COLLIDESTUFF")
-            # find closest point in obj
             closestx = self.rect.centerx
             if self.rect.centerx > obj.rect.right:
                 closestx = obj.rect.right
@@ -93,25 +91,41 @@ class Player(pygame.sprite.Sprite):
             elif self.rect.centery < obj.rect.top:
                 closesty = obj.rect.top
 
-
             # find angle between closest point and player center
-            y = self.rect.centery - closesty
-            x = self.rect.centerx - closestx
-            #print("X: "+str(x) + " Y: "+str(y))
+            y = closesty - self.rect.centery
+            x = closestx - self.rect.centerx
             angle = math.atan2(y, x)
 
-            if angle == 0 or angle == math.pi:
+            # debugging lines
+            #print("Av X:"+str(self.posx)+"Y:"+str(self.posy))
+            #print("Ob X:"+str(obj.rect.x)+"Y:"+str(obj.rect.y))
+            #print("Cl X:"+str(closestx)+"Y:"+str(closesty))
+            ##print("Angle: " + str(float(angle)/float(math.pi)))
+
+            # figure out which side hit
+            collision_right = math.pi*-1/4 < angle and angle < math.pi/4
+            collision_left = ((math.pi*-3/4 > angle and angle >= -1*math.pi) or
+                            (math.pi*3/4 < angle and angle <= math.pi))
+            collision_up = math.pi*1/4 < angle and angle < math.pi*3/4
+            collision_down = math.pi*-1/4 > angle and angle > math.pi*-3/4
+
+            if collision_right or collision_left:
                 self.speed[0] *= self.bounce_factor
-                if angle == 0:
-                    self.posx = self.rect.left - self.rect.width
-                elif angle == math.pi:
-                    self.posx = self.rect.right
-            elif angle == math.pi/2 or angle == -1*math.pi/2:
+                if collision_right:
+                    print("Colliding right")
+                    self.posx = obj.rect.left - self.rect.width - 1
+                elif collision_left:
+                    print("Colliding left")
+                    self.posx = obj.rect.right + 1
+
+            elif collision_up or collision_down:
                 self.speed[1] *= self.bounce_factor
-                if angle == math.pi/2:
-                    self.posy = obj.rect.bottom
-                if angle == -1*math.pi/2:
-                    self.posy = obj.rect.top - self.rect.height
+                if collision_up:
+                    print("Colliding up")
+                    self.posy = obj.rect.top - self.rect.height - 1
+                if collision_down:
+                    self.posy = obj.rect.bottom + 1
+                    print("Colliding down")
 
             # determine side from that
 
