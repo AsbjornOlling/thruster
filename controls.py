@@ -1,28 +1,32 @@
 # handle input
-import pygame
+import pygame as pg
 from pygame.locals import *
 import events
 
 class KeyboardController:
+    def __init__(self, eventmanager):
+        self.evm = eventmanager
+
     # run on every tick
     def update(self):
 
         # single-press events
-        for event in pygame.event.get():
+        for event in pg.event.get():
             if event.type == KEYDOWN:
                 # Q: exit game
                 if event.key == K_q:
-                    events.evm.notify(events.Quit())
+                    self.evm.notify(events.Quit())
 
         # get held keys
-        keystate = pygame.key.get_pressed()
+        keystate = pg.key.get_pressed()
         
         # arrow key movement
+        # allow multiple simultaneous
         if keystate[K_RIGHT]:
-            events.evm.notify(events.PlayerThrust("E"))
-        elif keystate[K_LEFT]:
-            events.evm.notify(events.PlayerThrust("W"))
+            self.evm.notify(events.PlayerThrust("E"))
+        if keystate[K_LEFT]:
+            self.evm.notify(events.PlayerThrust("W"))
         if keystate[K_UP]:
-            events.evm.notify(events.PlayerThrust("N"))
-        elif keystate[K_DOWN]:
-            events.evm.notify(events.PlayerThrust("S"))
+            self.evm.notify(events.PlayerThrust("N"))
+        if keystate[K_DOWN]:
+            self.evm.notify(events.PlayerThrust("S"))

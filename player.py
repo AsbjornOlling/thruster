@@ -10,13 +10,15 @@ class Player(pygame.sprite.Sprite):
     bounce_factor = -0.5 # must be between -1 and 0
     width = 50
     height = 50
-    posx = view.vw.width/2 + 100.0
-    posy = view.vw.height/2 + 100.0
+    posx = view.vw.width/2 
+    posy = view.vw.height/2
 
-    def __init__(self):
+    def __init__(self, evm):
+        print("Player creation!")
         pygame.sprite.Sprite.__init__(self)
 
         # event listener
+        self.evm = evm
         events.evm.add_listener(self)
 
         # sprite groups

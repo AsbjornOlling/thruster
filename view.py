@@ -1,7 +1,6 @@
 # viewer module
 import pygame
 import game
-import events
 
 class Viewer():
     # resolution and framerate
@@ -15,9 +14,9 @@ class Viewer():
     color_wall = (128, 128, 128)    # gray
     color_walldestructible = (128, 64, 64)    # orange-y
 
-    def __init__(self):
+    def __init__(self, screensize):
         # display surface
-        self.screen = pygame.display.set_mode((self.width, self.height))
+        self.screen = pygame.display.set_mode(screensize)
 
         # event listener
         events.evm.add_listener(self)
@@ -67,7 +66,3 @@ class Viewer():
             pygame.draw.ellipse(self.screen, self.color_flame, thruster.rect)
             self.update_rects.append(thruster.rect)
             self.update_rects_next.append(thruster.rect)
-
-
-# the actual viewer object
-vw = Viewer()

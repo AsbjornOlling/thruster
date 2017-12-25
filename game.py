@@ -1,24 +1,33 @@
-# container file for game states, rooms, main clock etc.
-import pygame
-import view
+# container file for game states, rooms, etc.
+import pygame as pg
+import player
 import events
 
-# time vars
-clock = pygame.time.Clock()
-dt = 0
+class Game:
+    def __init__(self, screensize, eventmanager):
+        # time vars
+        clock = pg.time.Clock()
 
-# global sprite groups
-allsprites = pygame.sprite.RenderUpdates()
-singleplayer = pygame.sprite.GroupSingle()
-hardcollide = pygame.sprite.Group()
+        # eventmanager
+        # not listening atm, but passes to player
+        self.evm = eventmanager
+
+        # sprite groups
+        allsprites = pg.sprite.RenderUpdates()
+        singleplayer = pg.sprite.GroupSingle()
+        hardcollide = pg.sprite.Group()
+
+        # make player
+        self.p = player.Player(self.evm)
+
 
 # contains a sprite group w/ walls
 class Room:
-    wallthickness = 20
+    wallthickness = 10
 
     def __init__(self):
         # sprite groups
-        self.walls = pygame.sprite.Group()
+        self.walls = pg.sprite.Group()
 
         # walls along screen edges
         self.wall_w = Wall((0, 0), (self.wallthickness, view.vw.height))
@@ -26,7 +35,7 @@ class Room:
         self.wall_n = Wall((0, 0), (view.vw.width, self.wallthickness))
         self.wall_s = Wall((0, view.vw.height - self.wallthickness), (view.vw.width, self.wallthickness))
 
-        self.walls.add(self.wall_w)
+        #self.walls.add(self.wall_w)
         self.walls.add(self.wall_e)
         self.walls.add(self.wall_n)
         self.walls.add(self.wall_s)
@@ -35,24 +44,28 @@ class Room:
         self.wall_c = WallDestructible((150, 150), (50, 50))
         self.walls.add(self.wall_c)
 
+        # make a room (temp)
+        # for room testing
+        self.currentroom = Room()
 
 # dumb block, for the player to bounce off
-class Wall(pygame.sprite.Sprite):
+class Wall(pg.sprite.Sprite):
     def __init__(self, coordtuple, sizetuple):
-        pygame.sprite.Sprite.__init__(self)
+        print("Wall creation!")
+        pg.sprite.Sprite.__init__(self)
 
         # sprite groups
         allsprites.add(self)
         hardcollide.add(self)
         
         # empty image
-        self.image = pygame.image.load("0.png")
+        self.image = pg.image.load("0.png")
 
         # set color
         self.color = view.vw.color_wall
 
         # rect using constructor args
-        self.rect = pygame.Rect(coordtuple, sizetuple)
+        self.rect = pg.Rect(coordtuple, sizetuple)
 
 
 # a dumb block, that takes damage from thrusters
@@ -65,7 +78,7 @@ class WallDestructible(Wall):
     # run on every tick
     def update(self):
         # check for collision with player thrusters
-        collisions = pygame.sprite.spritecollide(self, singleplayer.sprite.thrusters, 0)
+        collisions = pg.sprite.spritecollide(self, singleplayer.sprite.thrusters, 0)
         for thruster in collisions:
             # subtract health
             self.health -= thruster.length * dt / 1000
@@ -76,9 +89,6 @@ class WallDestructible(Wall):
         # kill if no health
         if self.health < 1:
             print("Wall DEATH")
-            events.evm.notify(events.ObjDeath(self.rect))
+            self.evm.notify(events.ObjDeath(self.rect))
             self.kill()
 
-# make a room (temp)
-# for room testing
-currentroom = Room()

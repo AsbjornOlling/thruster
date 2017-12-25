@@ -58,20 +58,24 @@ Controller: on_event()
 *Controller to model:* all kb input, mouse input, exit signals
 *Controller to viewer:* n/a
 
+### Scratchpad: Global variables
 
-### Collision angles:
+game.dt 
+	- needed by everything in model
 
-Right:
-	-Pi/4 - Pi/4
+view.width, view.height
+	- game class
 
-Left: 
-	-3Pi/4 - 3Pi/4
+eventmanager
+	- passed to every object taht is listener or needs children listeners
 
-Up:
-	Pi/4 - 3Pi/4
+**Arch. rewrite checklist:**
 
-Down:
-	-Pi/4 - 3Pi/4:
+X Game class
+* Pass view width, height to game class
+* replace width and height refs
+* organize main loop
+* replace all major object refs
 
 ## Goals and milestones
 
@@ -142,3 +146,10 @@ Down:
 **Accomplished:**
 
 	* WallDestructible class, w/ health and reacts to collision w/ thrust
+
+### Dec. 23
+
+**Accomplished:**
+
+	* Completed new, more general collision method. 
+	* Added color change for destructiblewall class
