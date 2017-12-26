@@ -12,7 +12,7 @@ class Player(pg.sprite.Sprite):
     width = 50
     height = 50
 
-    def __init__(self, game, evm):
+    def __init__(self, game):
         pg.sprite.Sprite.__init__(self)
 
         self.gm = game
@@ -21,7 +21,7 @@ class Player(pg.sprite.Sprite):
         self.posy = game.screenh/2
 
         # event listener
-        self.evm = evm
+        self.evm = game.evm
         self.evm.add_listener(self)
 
         # sprite groups
@@ -37,11 +37,12 @@ class Player(pg.sprite.Sprite):
         self.image = pg.image.load("ship_placeholder.png").convert()
         self.image = pg.transform.scale(self.image, (self.width, self.height))
         self.rect = self.image.get_rect()
+        self.rect.x = self.posx
+        self.rect.y = self.posy
 
     # run on every tick
     def update(self):
         self.move()
-        #debug shit print("POS:" + str(self.posx) + " " + str(self.posy))
         # update bounding box position
         self.rect.x = self.posx
         self.rect.y = self.posy
@@ -102,34 +103,32 @@ class Player(pg.sprite.Sprite):
             x = closestx - self.rect.centerx
             angle = math.atan2(y, x)
 
-            # debugging lines
-            #print("Av X:"+str(self.posx)+"Y:"+str(self.posy))
-            #print("Ob X:"+str(obj.rect.x)+"Y:"+str(obj.rect.y))
-            #print("Cl X:"+str(closestx)+"Y:"+str(closesty))
-            ##print("Angle: " + str(float(angle)/float(math.pi)))
+            # debug shit
+            print("OBJ:" + str(obj.rect))
+            print("SLF:" + str(self.rect))
 
             # figure out which side hit
-            collision_right = math.pi*-1/4 < angle and angle < math.pi/4
-            collision_left = ((math.pi*-3/4 > angle and angle >= -1*math.pi) or
-                            (math.pi*3/4 < angle and angle <= math.pi))
-            collision_up = math.pi*1/4 < angle and angle < math.pi*3/4
-            collision_down = math.pi*-1/4 > angle and angle > math.pi*-3/4
+            coll_right = math.pi*-1/4 < angle and angle < math.pi/4
+            coll_left = ((math.pi*-3/4 > angle and angle >= -1*math.pi) or
+                         (math.pi*3/4 < angle and angle <= math.pi))
+            coll_up = math.pi*1/4 < angle and angle < math.pi*3/4
+            coll_down = math.pi*-1/4 > angle and angle > math.pi*-3/4
 
-            if collision_right or collision_left:
+            if coll_right or coll_left:
                 self.speed[0] *= self.bounce_factor
-                if collision_right:
+                if coll_right:
                     print("Colliding right")
                     self.posx = obj.rect.left - self.rect.width - 1
-                elif collision_left:
+                elif coll_left:
                     print("Colliding left")
                     self.posx = obj.rect.right + 1
 
-            elif collision_up or collision_down:
+            elif coll_up or coll_down:
                 self.speed[1] *= self.bounce_factor
-                if collision_up:
+                if coll_up:
                     print("Colliding up")
                     self.posy = obj.rect.top - self.rect.height - 1
-                if collision_down:
+                if coll_down:
                     self.posy = obj.rect.bottom + 1
                     print("Colliding down")
 
