@@ -64,10 +64,12 @@ class Viewer():
             pg.draw.rect(self.screen, self.color_wall, wall.rect)
             self.update_rects.append(wall.rect)
 
-            # draw damange layer
-            if type(wall) == "WallDestructible":
-                print(type(wall))
-                pg.draw.rect(self.screen, (128,0,0,50), wall.rect)
+            # draw damange redness
+            if hasattr(wall, "health"):
+                reds = pg.Surface(wall.rect.size)
+                reds.set_alpha(150 - wall.health)
+                reds.fill((255, 0, 0))
+                self.screen.blit(reds, (wall.rect.x, wall.rect.y))
 
 
     # draw player's thrusters and get update rects
