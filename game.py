@@ -30,12 +30,12 @@ class Game:
         self.dt = self.clock.tick(60)
 
     def start(self):
-        # make player
-        self.p = player.Player(self, self.evm)
-
         # make a room (temp)
         # for room testing
         self.currentroom = Room(self)
+
+        # make player
+        self.p = player.Player(self, self.evm)
 
 
 # contains a sprite group w/ walls
@@ -73,6 +73,7 @@ class Room:
         self.walls = pg.sprite.Group()
         
         # add walls to group
+        # TODO do in constructor
         self.walls.add(self.wall_w)
         self.walls.add(self.wall_e)
         self.walls.add(self.wall_n)
@@ -109,7 +110,8 @@ class WallDestructible(Wall):
     # run on every tick
     def update(self):
         # check for collision with player thrusters
-        collisions = pg.sprite.spritecollide(self, self.gm.singleplayer.sprite.thrusters, 0)
+        collisions = pg.sprite.spritecollide(self, self.gm.player.sprite.thrusters, 0)
+
         for thruster in collisions:
             # subtract health
             self.health -= thruster.length * self.gm.dt / 1000

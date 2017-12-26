@@ -74,7 +74,7 @@ class Viewer():
 
     # draw player's thrusters and get update rects
     def draw_thrusters(self):
-        for thruster in self.gm.singleplayer.sprite.thrusters:
+        for thruster in self.gm.player.sprite.thrusters:
             pg.draw.ellipse(self.screen, self.color_flame, thruster.rect)
             self.update_rects.append(thruster.rect)
             self.update_rects_next.append(thruster.rect)

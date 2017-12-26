@@ -26,7 +26,7 @@ class Player(pg.sprite.Sprite):
 
         # sprite groups
         game.allsprites.add(self)
-        game.singleplayer.add(self)
+        game.player.add(self)
         self.attached = pg.sprite.Group()
         self.thrusters = pg.sprite.Group()
 
@@ -41,6 +41,7 @@ class Player(pg.sprite.Sprite):
     # run on every tick
     def update(self):
         self.move()
+        #debug shit print("POS:" + str(self.posx) + " " + str(self.posy))
         # update bounding box position
         self.rect.x = self.posx
         self.rect.y = self.posy
@@ -152,7 +153,7 @@ class Thruster(pg.sprite.Sprite):
         self.gm = game
 
         # the sprite that thruster is attached to
-        self.player = self.gm.singleplayer.sprite
+        self.player = self.gm.player.sprite
 
         # sprite groups
         game.allsprites.add(self)
