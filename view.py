@@ -31,9 +31,9 @@ class Viewer():
     def update(self):
         # lay background first
         self.screen.fill(self.color_bg)
-        self.draw_sprites()
-        self.draw_walls()
         self.draw_thrusters()
+        self.draw_walls()
+        self.draw_sprites()
 
         # draw and update changed rects only
         pg.display.update(self.update_rects)
@@ -58,9 +58,17 @@ class Viewer():
     # draw the walls of currentroom and get update rects
     def draw_walls(self):
         room = self.gm.currentroom
+        # draw the walls
+        # TODO don't do this every loop
         for wall in room.walls:
-            pg.draw.rect(self.screen, wall.color, wall.rect)
+            pg.draw.rect(self.screen, self.color_wall, wall.rect)
             self.update_rects.append(wall.rect)
+
+            # draw damange layer
+            if type(wall) == "WallDestructible":
+                print(type(wall))
+                pg.draw.rect(self.screen, (128,0,0,50), wall.rect)
+
 
     # draw player's thrusters and get update rects
     def draw_thrusters(self):

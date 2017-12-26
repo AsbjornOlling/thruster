@@ -58,24 +58,6 @@ Controller: on_event()
 *Controller to model:* all kb input, mouse input, exit signals
 *Controller to viewer:* n/a
 
-### Scratchpad: Global variables
-
-game.dt 
-	- needed by everything in model
-
-view.width, view.height
-	- game class
-
-eventmanager
-	- passed to every object taht is listener or needs children listeners
-
-**Arch. rewrite checklist:**
-
-X Game class
-X Pass view width, height to game class
-* replace width and height refs
-* organize main loop
-* replace all major object refs
 
 ## Goals and milestones
 

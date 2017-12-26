@@ -19,14 +19,15 @@ class Game:
         self.singleplayer = pg.sprite.GroupSingle()
         self.hardcollide = pg.sprite.Group()
 
-        # time vars
+        # init time
         self.clock = pg.time.Clock()
+        self.tick()
 
     def update(self):
         self.allsprites.update()
 
     def tick(self):
-        self.dt = self.clock.tick(self.clock.get_fps())
+        self.dt = self.clock.tick(60)
 
     def start(self):
         # make player
@@ -34,26 +35,39 @@ class Game:
 
         # make a room (temp)
         # for room testing
-        self.currentroom = Room(self, self.screensize)
+        self.currentroom = Room(self)
 
 
 # contains a sprite group w/ walls
 class Room:
     wallthickness = 10
 
-    def __init__(self, game, screensize):
-        WIDTH, HEIGHT = screensize
-
+    def __init__(self, game):
+        WIDTH, HEIGHT = game.screensize
         self.gm = game
 
         # make walls along screen edges
-        self.wall_w = Wall(game, (0, 0), (self.wallthickness, HEIGHT))
-        self.wall_e = Wall(game, (WIDTH - self.wallthickness, 0), (self.wallthickness, HEIGHT))
-        self.wall_n = Wall(game, (0, 0), (WIDTH, self.wallthickness))
-        self.wall_s = Wall(game, (0, HEIGHT - self.wallthickness), (WIDTH, self.wallthickness))
+        self.wall_w = Wall((0, 0), 
+                           (self.wallthickness, HEIGHT), 
+                           game)
+
+        self.wall_e = Wall((WIDTH - self.wallthickness, 0), 
+                           (self.wallthickness, HEIGHT),
+                           game)
+
+        self.wall_n = Wall((0, 0), 
+                           (WIDTH, self.wallthickness),
+                           game)
+
+
+        self.wall_s = Wall((0, HEIGHT - self.wallthickness), 
+                           (WIDTH, self.wallthickness),
+                           game)
 
         # a destructible block
-        self.wall_c = WallDestructible(game, (150, 150), (50, 50))
+        self.wall_c = WallDestructible((150, 150), 
+                                       (50, 50),
+                                       game)
 
         # sprite groups
         self.walls = pg.sprite.Group()
@@ -68,10 +82,12 @@ class Room:
 
 # dumb block, for the player to bounce off
 class Wall(pg.sprite.Sprite):
-    def __init__(self, game, coordtuple, sizetuple):
+    def __init__(self, pos, size, game):
         pg.sprite.Sprite.__init__(self)
 
+        # external objects
         self.gm = game
+        self.evm = game.evm
 
         # sprite groups
         game.allsprites.add(self)
@@ -80,20 +96,15 @@ class Wall(pg.sprite.Sprite):
         # empty image
         self.image = pg.image.load("0.png")
 
-        # set color TODO move color handling into view
-        self.color = (128, 128, 128)
-
         # rect using constructor args
-        self.rect = pg.Rect(coordtuple, sizetuple)
+        self.rect = pg.Rect(pos, size)
 
 
 # a dumb block, that takes damage from thrusters
 class WallDestructible(Wall):
-    def __init__(self, game, coordtuple, sizetuple):
-        super(WallDestructible, self).__init__(game, coordtuple, sizetuple)
-        self.gm = game
+    def __init__(self, pos, size, game):
+        super(WallDestructible, self).__init__(pos, size, game)
         self.health = 100
-        self.color = (200, 150, 150)
 
     # run on every tick
     def update(self):
@@ -101,10 +112,7 @@ class WallDestructible(Wall):
         collisions = pg.sprite.spritecollide(self, self.gm.singleplayer.sprite.thrusters, 0)
         for thruster in collisions:
             # subtract health
-            self.health -= thruster.length * dt / 1000
-            # change color
-            self.color = (self.color[0] + thruster.length / 55,
-                          self.color[1], self.color[2])
+            self.health -= thruster.length * self.gm.dt / 1000
 
         # kill if no health
         if self.health < 1:
