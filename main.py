@@ -1,8 +1,6 @@
 # Thruster game WIP 
 import pygame as pg
-from pygame.locals import *
 
-# other game files
 import events
 
 import game
@@ -40,23 +38,24 @@ if __name__ == "__main__":
     app = App(evm)
 
     # model
-    g = game.Game(app.RES, evm)
+    gm = game.Game(app.RES, evm)
 
     # viewer
-    vw = view.Viewer(g, app.RES, evm)
+    vw = view.Viewer(app.RES, gm, evm)
 
     # controller
     kb = controls.KeyboardController(evm)
     
+    # load objects and start game
+    gm.start()
 
     # main loop
     while True:
         # handle keyboard events
         kb.update()
         # update all sprites
-        g.allsprites.update()
+        gm.update()
         # draw everything
         vw.update()
 
-        # tick TODO move this into model
-        g.dt = g.clock.tick(view.vw.fps)
+        gm.tick()

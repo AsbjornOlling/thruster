@@ -1,12 +1,11 @@
 # viewer module
-import pygame
-import game
+import pygame as pg
+import events
 
 class Viewer():
     # resolution and framerate
     width = 500
     height = 500
-    fps = 60
 
     # colors
     color_bg = (0, 0, 0)            # just black
@@ -14,12 +13,15 @@ class Viewer():
     color_wall = (128, 128, 128)    # gray
     color_walldestructible = (128, 64, 64)    # orange-y
 
-    def __init__(self, screensize):
+    def __init__(self, screensize, game, eventmanager):
         # display surface
-        self.screen = pygame.display.set_mode(screensize)
+        self.screen = pg.display.set_mode(screensize)
 
         # event listener
-        events.evm.add_listener(self)
+        self.evm = eventmanager
+        self.evm.add_listener(self)
+
+        self.gm = game
 
         # lists of areas to update
         self.update_rects = []
@@ -34,7 +36,7 @@ class Viewer():
         self.draw_thrusters()
 
         # draw and update changed rects only
-        pygame.display.update(self.update_rects)
+        pg.display.update(self.update_rects)
 
         # reset lists
         self.update_rects = []
@@ -50,19 +52,19 @@ class Viewer():
     
     # draw sprites and get update rects
     def draw_sprites(self):
-        for rect in game.allsprites.draw(self.screen):
+        for rect in self.gm.allsprites.draw(self.screen):
             self.update_rects.append(rect)
 
     # draw the walls of currentroom and get update rects
     def draw_walls(self):
-        room = game.currentroom
+        room = self.gm.currentroom
         for wall in room.walls:
-            pygame.draw.rect(self.screen, wall.color, wall.rect)
+            pg.draw.rect(self.screen, wall.color, wall.rect)
             self.update_rects.append(wall.rect)
 
     # draw player's thrusters and get update rects
     def draw_thrusters(self):
-        for thruster in game.singleplayer.sprite.thrusters:
-            pygame.draw.ellipse(self.screen, self.color_flame, thruster.rect)
+        for thruster in self.gm.singleplayer.sprite.thrusters:
+            pg.draw.ellipse(self.screen, self.color_flame, thruster.rect)
             self.update_rects.append(thruster.rect)
             self.update_rects_next.append(thruster.rect)

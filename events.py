@@ -19,10 +19,6 @@ class EventManager:
             listener.notify(event)
 
 
-# make the listener object
-evm = EventManager()
-
-
 # superclass for events
 class Event:
     def __init__(self):

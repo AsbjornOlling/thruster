@@ -72,7 +72,7 @@ eventmanager
 **Arch. rewrite checklist:**
 
 X Game class
-* Pass view width, height to game class
+X Pass view width, height to game class
 * replace width and height refs
 * organize main loop
 * replace all major object refs
