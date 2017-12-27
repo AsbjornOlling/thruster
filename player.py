@@ -17,8 +17,8 @@ class Player(pg.sprite.Sprite):
 
         self.gm = game
 
-        self.posx = game.screenw/2 
-        self.posy = game.screenh/2
+        self.posx = game.currentroom.center[0] - self.width/2
+        self.posy = game.currentroom.center[1] - self.height/2
 
         # event listener
         self.evm = game.evm
@@ -37,8 +37,7 @@ class Player(pg.sprite.Sprite):
         self.image = pg.image.load("ship_placeholder.png").convert()
         self.image = pg.transform.scale(self.image, (self.width, self.height))
         self.rect = self.image.get_rect()
-        self.rect.x = self.posx
-        self.rect.y = self.posy
+        self.move()
 
     # run on every tick
     def update(self):
@@ -147,7 +146,6 @@ class Thruster(pg.sprite.Sprite):
         # event listener
         self.evm = eventmanager
         self.evm.add_listener(self)
-
 
         self.gm = game
 

@@ -4,24 +4,27 @@ import player
 import events
 
 class Game:
-    dt = 0
+    marginw = 150
 
     def __init__(self, screensize, eventmanager):
         # eventmanager
         # not listening atm, but passes to player
         self.evm = eventmanager
 
-        # screen size
-        self.screenw, self.screenh = self.screensize = screensize
-
         # sprite groups
         self.allsprites = pg.sprite.RenderUpdates()
-        self.singleplayer = pg.sprite.GroupSingle()
+        self.player = pg.sprite.GroupSingle()
         self.hardcollide = pg.sprite.Group()
 
         # init time
         self.clock = pg.time.Clock()
         self.tick()
+
+        # screen size
+        self.screenw, self.screenh = self.screensize = screensize
+        # room size
+        self.roomsize = self.roomw, self.roomh = (self.screenw - 2*self.marginw,
+                                                  self.screenh)
 
     def update(self):
         self.allsprites.update()
@@ -35,7 +38,7 @@ class Game:
         self.currentroom = Room(self)
 
         # make player
-        self.p = player.Player(self, self.evm)
+        self.p = player.Player(self)
 
 
 # contains a sprite group w/ walls
@@ -43,29 +46,31 @@ class Room:
     wallthickness = 10
 
     def __init__(self, game):
-        WIDTH, HEIGHT = game.screensize
+        self.width, self.height = game.roomsize
+        self.left = game.marginw
+        self.right = self.left + self.width
+
         self.gm = game
 
         # make walls along screen edges
-        self.wall_w = Wall((0, 0), 
-                           (self.wallthickness, HEIGHT), 
+        self.wall_w = Wall((self.left, 0), 
+                           (self.wallthickness, self.height), 
                            game)
 
-        self.wall_e = Wall((WIDTH - self.wallthickness, 0), 
-                           (self.wallthickness, HEIGHT),
+        self.wall_e = Wall((self.right - self.wallthickness, 0), 
+                           (self.wallthickness, self.height),
                            game)
 
-        self.wall_n = Wall((0, 0), 
-                           (WIDTH, self.wallthickness),
+        self.wall_n = Wall((game.marginw, 0), 
+                           (self.width, self.wallthickness),
                            game)
 
-
-        self.wall_s = Wall((0, HEIGHT - self.wallthickness), 
-                           (WIDTH, self.wallthickness),
+        self.wall_s = Wall((game.marginw, self.height - self.wallthickness), 
+                           (self.width, self.wallthickness),
                            game)
 
         # a destructible block
-        self.wall_c = WallDestructible((150, 150), 
+        self.wall_c = WallDestructible((self.left + self.width/3, self.height/3), 
                                        (50, 50),
                                        game)
 
