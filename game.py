@@ -30,6 +30,7 @@ class Game:
         self.allsprites.update()
 
     def tick(self):
+        # tick at 60fps
         self.dt = self.clock.tick(60)
 
     def start(self):
@@ -43,46 +44,97 @@ class Game:
 
 # contains a sprite group w/ walls
 class Room:
-    wallthickness = 10
+    wallthickness = 25
+    gatelength = 200
 
     def __init__(self, game):
+        # game model
+        self.gm = game
+
+        # room dimensions
         self.width, self.height = game.roomsize
         self.left = game.marginw
         self.right = self.left + self.width
+        self.center = (self.left + self.width/2, self.height/2)
 
-        self.gm = game
+        # sprite groups
+        self.walls = pg.sprite.Group()
 
-        # make walls along screen edges
-        self.wall_w = Wall((self.left, 0), 
-                           (self.wallthickness, self.height), 
-                           game)
+        # make outer walls
+        nongateh = (self.height - self.gatelength)/2
+        # west wall w/ gate
+        wall_wtop = Wall((self.left, 0), 
+                         (self.wallthickness, nongateh), 
+                         game)
+        self.walls.add(wall_wtop)
 
-        self.wall_e = Wall((self.right - self.wallthickness, 0), 
-                           (self.wallthickness, self.height),
-                           game)
+        wall_wgate = WallDestructible((self.left, nongateh), 
+                                      (self.wallthickness, self.gatelength), 
+                                      game)
+        self.walls.add(wall_wgate)
 
-        self.wall_n = Wall((game.marginw, 0), 
-                           (self.width, self.wallthickness),
-                           game)
+        wall_wbottom = Wall((self.left, self.gatelength + nongateh),
+                            (self.wallthickness, nongateh),
+                            game)
+        self.walls.add(wall_wbottom)
 
-        self.wall_s = Wall((game.marginw, self.height - self.wallthickness), 
-                           (self.width, self.wallthickness),
-                           game)
+        # east wall w/ gate
+        wall_etop = Wall((self.right - self.wallthickness, 0), 
+                         (self.wallthickness, nongateh), 
+                         game)
+        self.walls.add(wall_etop)
 
-        # a destructible block
+        wall_egate = WallDestructible((self.right - self.wallthickness, nongateh), 
+                                      (self.wallthickness, self.gatelength), 
+                                      game)
+        self.walls.add(wall_egate)
+
+        wall_ebottom = Wall((self.right - self.wallthickness, self.gatelength + nongateh),
+                            (self.wallthickness, nongateh),
+                            game)
+        self.walls.add(wall_ebottom)
+        
+        # north wall w/ gate
+        nongatew = (self.width - self.gatelength)/2
+        wall_nleft = Wall((self.left, 0), 
+                         (nongatew, self.wallthickness),
+                         game)
+        self.walls.add(wall_nleft)
+
+        wall_ngate = WallDestructible((self.left + nongatew, 0), 
+                                      (self.gatelength, self.wallthickness),
+                                      game)
+        self.walls.add(wall_ngate)
+
+        wall_nright = Wall((self.right - nongatew, 0), 
+                            (nongatew, self.wallthickness),
+                            game)
+        self.walls.add(wall_nright)
+
+        # south wall w/ gate
+        wall_stop = Wall((self.left, self.height - self.wallthickness), 
+                         (nongatew, self.wallthickness),
+                         game)
+        self.walls.add(wall_stop)
+
+        wall_sgate = WallDestructible((self.left + nongatew, self.height - self.wallthickness), 
+                                      (self.gatelength, self.wallthickness),
+                                      game)
+        self.walls.add(wall_sgate)
+
+        wall_stop = Wall((self.right - nongatew, self.height - self.wallthickness), 
+                         (nongatew, self.wallthickness),
+                         game)
+        self.walls.add(wall_stop)
+
+        # a destructible block in the middle
         self.wall_c = WallDestructible((self.left + self.width/3, self.height/3), 
                                        (50, 50),
                                        game)
 
-        # sprite groups
-        self.walls = pg.sprite.Group()
         
         # add walls to group
         # TODO do in constructor
-        self.walls.add(self.wall_w)
-        self.walls.add(self.wall_e)
-        self.walls.add(self.wall_n)
-        self.walls.add(self.wall_s)
         self.walls.add(self.wall_c)
 
 
