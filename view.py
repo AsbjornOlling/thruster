@@ -67,7 +67,7 @@ class Viewer():
             # draw damange redness
             if hasattr(wall, "health"):
                 reds = pg.Surface(wall.rect.size)
-                reds.set_alpha(150 - wall.health)
+                reds.set_alpha(256 - wall.health*1.5)
                 reds.fill((255, 0, 0))
                 self.screen.blit(reds, (wall.rect.x, wall.rect.y))
 
