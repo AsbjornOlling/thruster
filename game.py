@@ -65,71 +65,72 @@ class Room:
         # west wall w/ gate
         wall_wtop = Wall((self.left, 0), 
                          (self.wallthickness, nongateh), 
+                         self,
                          game)
-        self.walls.add(wall_wtop)
 
         wall_wgate = WallDestructible((self.left, nongateh), 
                                       (self.wallthickness, self.gatelength), 
+                                      self,
                                       game)
-        self.walls.add(wall_wgate)
 
         wall_wbottom = Wall((self.left, self.gatelength + nongateh),
                             (self.wallthickness, nongateh),
+                            self,
                             game)
-        self.walls.add(wall_wbottom)
 
         # east wall w/ gate
         wall_etop = Wall((self.right - self.wallthickness, 0), 
                          (self.wallthickness, nongateh), 
+                         self,
                          game)
-        self.walls.add(wall_etop)
 
         wall_egate = WallDestructible((self.right - self.wallthickness, nongateh), 
                                       (self.wallthickness, self.gatelength), 
+                                      self,
                                       game)
-        self.walls.add(wall_egate)
 
         wall_ebottom = Wall((self.right - self.wallthickness, self.gatelength + nongateh),
                             (self.wallthickness, nongateh),
+                            self,
                             game)
-        self.walls.add(wall_ebottom)
         
         # north wall w/ gate
         nongatew = (self.width - self.gatelength)/2
         wall_nleft = Wall((self.left, 0), 
                          (nongatew, self.wallthickness),
+                         self,
                          game)
-        self.walls.add(wall_nleft)
 
         wall_ngate = WallDestructible((self.left + nongatew, 0), 
                                       (self.gatelength, self.wallthickness),
+                                      self,
                                       game)
-        self.walls.add(wall_ngate)
 
         wall_nright = Wall((self.right - nongatew, 0), 
                             (nongatew, self.wallthickness),
+                            self,
                             game)
-        self.walls.add(wall_nright)
 
         # south wall w/ gate
         wall_stop = Wall((self.left, self.height - self.wallthickness), 
                          (nongatew, self.wallthickness),
+                         self,
                          game)
-        self.walls.add(wall_stop)
 
         wall_sgate = WallDestructible((self.left + nongatew, self.height - self.wallthickness), 
                                       (self.gatelength, self.wallthickness),
+                                      self,
                                       game)
-        self.walls.add(wall_sgate)
 
         wall_stop = Wall((self.right - nongatew, self.height - self.wallthickness), 
                          (nongatew, self.wallthickness),
+                         self,
                          game)
-        self.walls.add(wall_stop)
 
         # a destructible block in the middle
         self.wall_c = WallDestructible((self.left + self.width/3, self.height/3), 
                                        (50, 50),
+                                       self,
                                        game)
 
         
@@ -140,7 +141,7 @@ class Room:
 
 # dumb block, for the player to bounce off
 class Wall(pg.sprite.Sprite):
-    def __init__(self, pos, size, game):
+    def __init__(self, pos, size, room, game):
         pg.sprite.Sprite.__init__(self)
 
         # external objects
@@ -150,6 +151,7 @@ class Wall(pg.sprite.Sprite):
         # sprite groups
         game.allsprites.add(self)
         game.hardcollide.add(self)
+        room.walls.add(self)
         
         # empty image
         self.image = pg.image.load("0.png")
@@ -160,8 +162,8 @@ class Wall(pg.sprite.Sprite):
 
 # a dumb block, that takes damage from thrusters
 class WallDestructible(Wall):
-    def __init__(self, pos, size, game):
-        super(WallDestructible, self).__init__(pos, size, game)
+    def __init__(self, pos, size, room, game):
+        super(WallDestructible, self).__init__(pos, size, room, game)
         self.health = 100
 
     # run on every tick
