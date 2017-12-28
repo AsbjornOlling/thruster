@@ -3,6 +3,9 @@ import pygame as pg
 import player
 import events
 
+# debug
+import pdb
+
 class Game:
     marginw = 150
 
@@ -42,9 +45,9 @@ class Game:
         # grid uses same coord convention as screen
         dimension = 512
         self.visitedrooms = []
-        roomscol = [None] * dimension
         for i in range(0, dimension):
-            self.visitedrooms.append(roomscol)
+            column = [None] * dimension
+            self.visitedrooms.append(column)
 
         # make the spawn room
         self.currentroom = Room((255, 255), self)
@@ -80,8 +83,12 @@ class Game:
             newplayerpos = (self.currentroom.center[0] - self.p.width/2,
                             0 - self.p.height/2)
 
+        print("CUR:"+str(self.currentroom.coord))
+        print("TAR:"+str(targetcoord))
+
         # check if new room already created
-        if self.visitedrooms[targetcoord[0]][targetcoord[1]] != None:
+        targetroom = self.visitedrooms[targetcoord[0]][targetcoord[1]]
+        if targetroom == None:
             # if not, make a new room
             newroom = Room(targetcoord, self, self.currentroom)
         else:
@@ -90,9 +97,7 @@ class Game:
         # set the new room
         self.currentroom = newroom
 
-        self.p.posx = newplayerpos[0]
-        self.p.posy = newplayerpos[1]
-
+        self.p.posx, self.p.posy = newplayerpos
 
 # contains a sprite group w/ walls
 class Room:
@@ -106,6 +111,8 @@ class Room:
         # set coord, and add to grid
         self.coord = coord
         game.visitedrooms[coord[0]][coord[1]] = self
+        print("MAKING NEW ROOM")
+        print(game.visitedrooms[coord[0]][coord[1]])
 
         # room dimension vars
         self.width, self.height = game.roomsize
