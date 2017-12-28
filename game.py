@@ -8,15 +8,15 @@ class Game:
 
     def __init__(self, screensize, eventmanager):
         # eventmanager
-        # not listening atm, but passes to player
         self.evm = eventmanager
+        self.evm.add_listener(self)
 
         # sprite groups
         self.allsprites = pg.sprite.RenderUpdates()
         self.player = pg.sprite.GroupSingle()
         self.hardcollide = pg.sprite.Group()
 
-        # init time
+        # init time, initial tick (for dt)
         self.clock = pg.time.Clock()
         self.tick()
 
@@ -29,29 +29,85 @@ class Game:
     def update(self):
         self.allsprites.update()
 
+    def notify(self, event):
+        if isinstance(event, events.RoomExit):
+            self.move_rooms(event.direction)
+
     def tick(self):
         # tick at 60fps
         self.dt = self.clock.tick(60)
 
     def start(self):
-        # make a room (temp)
-        # for room testing
-        self.currentroom = Room(self)
+        # make empty 512x512 grid
+        # grid uses same coord convention as screen
+        dimension = 512
+        self.visitedrooms = []
+        roomscol = [None] * dimension
+        for i in range(0, dimension):
+            self.visitedrooms.append(roomscol)
+
+        # make the spawn room
+        self.currentroom = Room((255, 255), self)
 
         # make player
         self.p = player.Player(self)
 
+    def move_rooms(self, direction):
+        # get coord of the new room
+        # and coord of new player position
+        if direction == "W":
+            targetcoord = (self.currentroom.coord[0] - 1, 
+                           self.currentroom.coord[1])
+            # entrypoint at E gate
+            newplayerpos = (self.currentroom.right - self.p.width/2,
+                            self.currentroom.center[1] - self.p.height/2)
+        elif direction == "E":
+            targetcoord = (self.currentroom.coord[0] + 1, 
+                           self.currentroom.coord[1])
+            # entrypoint at W gate
+            newplayerpos = (self.currentroom.left + self.p.width/2,
+                            self.currentroom.center[1] - self.p.height/2)
+        elif direction == "N":
+            targetcoord = (self.currentroom.coord[0], 
+                           self.currentroom.coord[1] - 1)
+            # entrypoint at S gate
+            newplayerpos = (self.currentroom.center[0] - self.p.width/2,
+                            self.screenh - self.p.height/2)
+        elif direction == "S":
+            targetcoord = (self.currentroom.coord[0], 
+                           self.currentroom.coord[1] + 1)
+            # entrypoint at N gate
+            newplayerpos = (self.currentroom.center[0] - self.p.width/2,
+                            0 - self.p.height/2)
+
+        # check if new room already created
+        if self.visitedrooms[targetcoord[0]][targetcoord[1]] != None:
+            # if not, make a new room
+            newroom = Room(targetcoord, self, self.currentroom)
+        else:
+            newroom = self.visitedrooms[targetcoord[0]][targetcoord[1]] 
+
+        # set the new room
+        self.currentroom = newroom
+
+        self.p.posx = newplayerpos[0]
+        self.p.posy = newplayerpos[1]
+
 
 # contains a sprite group w/ walls
 class Room:
-    wallthickness = 25
+    wallthickness = 20
     gatelength = 200
 
-    def __init__(self, game):
+    def __init__(self, coord, game, prev=None):
         # game model
         self.gm = game
+        
+        # set coord, and add to grid
+        self.coord = coord
+        game.visitedrooms[coord[0]][coord[1]] = self
 
-        # room dimensions
+        # room dimension vars
         self.width, self.height = game.roomsize
         self.left = game.marginw
         self.right = self.left + self.width
@@ -60,83 +116,74 @@ class Room:
         # sprite groups
         self.walls = pg.sprite.Group()
 
-        # make outer walls
+        # make gates to previously discovered rooms open
+        opengates = []
+        neighbor_shift = [(-1, 0, "W"), (1, 0, "E"), 
+                          (0, -1, "N"), (0, 1, "S")]
+        for relpos in neighbor_shift:
+            # if neighbor room exists, make that gate open
+            if self.gm.visitedrooms[self.coord[0] + relpos[0]]\
+                                   [self.coord[1] + relpos[1]] != None:
+                opengates.append(relpos[2])
+
+        # outer walls w/ gates
+        self.make_outerwalls(opengates)
+
+        # random destructible block
+        self.wall_c = WallDestructible((self.left + self.width/3, 
+                                       self.height/3), 
+                                       (50, 50),
+                                       self, game)
+
+    def make_outerwalls(self, opengates):
+        # west wall
         nongateh = (self.height - self.gatelength)/2
-        # west wall w/ gate
         wall_wtop = Wall((self.left, 0), 
                          (self.wallthickness, nongateh), 
-                         self,
-                         game)
-
-        wall_wgate = WallDestructible((self.left, nongateh), 
-                                      (self.wallthickness, self.gatelength), 
-                                      self,
-                                      game)
-
+                         self, self.gm)
         wall_wbottom = Wall((self.left, self.gatelength + nongateh),
                             (self.wallthickness, nongateh),
-                            self,
-                            game)
-
-        # east wall w/ gate
+                            self, self.gm)
+        # east wall
         wall_etop = Wall((self.right - self.wallthickness, 0), 
                          (self.wallthickness, nongateh), 
-                         self,
-                         game)
-
-        wall_egate = WallDestructible((self.right - self.wallthickness, nongateh), 
-                                      (self.wallthickness, self.gatelength), 
-                                      self,
-                                      game)
-
+                         self, self.gm)
         wall_ebottom = Wall((self.right - self.wallthickness, self.gatelength + nongateh),
                             (self.wallthickness, nongateh),
-                            self,
-                            game)
-        
-        # north wall w/ gate
+                            self, self.gm)
+        # north wall
         nongatew = (self.width - self.gatelength)/2
         wall_nleft = Wall((self.left, 0), 
                          (nongatew, self.wallthickness),
-                         self,
-                         game)
-
-        wall_ngate = WallDestructible((self.left + nongatew, 0), 
-                                      (self.gatelength, self.wallthickness),
-                                      self,
-                                      game)
-
+                         self, self.gm)
         wall_nright = Wall((self.right - nongatew, 0), 
                             (nongatew, self.wallthickness),
-                            self,
-                            game)
-
-        # south wall w/ gate
-        wall_stop = Wall((self.left, self.height - self.wallthickness), 
+                            self, self.gm)
+        # south wall
+        wall_sleft = Wall((self.left, self.height - self.wallthickness), 
                          (nongatew, self.wallthickness),
-                         self,
-                         game)
-
-        wall_sgate = WallDestructible((self.left + nongatew, self.height - self.wallthickness), 
-                                      (self.gatelength, self.wallthickness),
-                                      self,
-                                      game)
-
-        wall_stop = Wall((self.right - nongatew, self.height - self.wallthickness), 
+                         self, self.gm)
+        wall_sright = Wall((self.right - nongatew, self.height - self.wallthickness), 
                          (nongatew, self.wallthickness),
-                         self,
-                         game)
+                         self, self.gm)
 
-        # a destructible block in the middle
-        self.wall_c = WallDestructible((self.left + self.width/3, self.height/3), 
-                                       (50, 50),
-                                       self,
-                                       game)
-
-        
-        # add walls to group
-        # TODO do in constructor
-        self.walls.add(self.wall_c)
+        # gates
+        if "W" not in opengates:
+            wall_wgate = WallDestructible((self.left, nongateh), 
+                                          (self.wallthickness, self.gatelength), 
+                                          self, self.gm)
+        if "E" not in opengates:
+            wall_egate = WallDestructible((self.right - self.wallthickness, nongateh), 
+                                          (self.wallthickness, self.gatelength), 
+                                          self, self.gm)
+        if "N" not in opengates:
+            wall_ngate = WallDestructible((self.left + nongatew, 0), 
+                                          (self.gatelength, self.wallthickness),
+                                          self, self.gm)
+        if "S" not in opengates:
+            wall_sgate = WallDestructible((self.left + nongatew, self.height - self.wallthickness), 
+                                          (self.gatelength, self.wallthickness),
+                                          self, self.gm)
 
 
 # dumb block, for the player to bounce off
