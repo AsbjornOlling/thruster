@@ -99,11 +99,15 @@ class Game:
         # retire the old room
         self.currentroom.move_offscreen()
 
+        # move player
+        self.p.posx, self.p.posy = newplayerpos
+
         # activate the new room
         self.currentroom = newroom
         self.currentroom.move_onscreen()
 
-        self.p.posx, self.p.posy = newplayerpos
+        # clear screen to render new room
+        self.evm.notify(events.ClearScreen())
 
 # contains a sprite group w/ walls
 class Room:
@@ -117,8 +121,6 @@ class Room:
         # set coord, and add to grid
         self.coord = coord
         game.visitedrooms[coord[0]][coord[1]] = self
-        print("MAKING NEW ROOM")
-        print(game.visitedrooms[coord[0]][coord[1]])
 
         # room dimension vars
         self.width, self.height = game.roomsize
@@ -139,6 +141,7 @@ class Room:
             if self.gm.visitedrooms[self.coord[0] + relpos[0]]\
                                    [self.coord[1] + relpos[1]] != None:
                 opengates.append(relpos[2])
+                print("OPEN GATE:" + str(relpos[2]))
 
         # outer walls w/ gates
         self.make_outerwalls(opengates)
@@ -217,7 +220,7 @@ class Room:
             self.gm.offscreen.remove(sprite)
             self.gm.onscreen.add(sprite)
 
-# dumb block, for the player to bounce off
+# "dumb" block, for the player to bounce off
 class Wall(pg.sprite.Sprite):
     def __init__(self, pos, size, room, game):
         pg.sprite.Sprite.__init__(self)
@@ -228,6 +231,7 @@ class Wall(pg.sprite.Sprite):
 
         # sprite groups
         game.allsprites.add(self)
+        game.onscreen.add(self)
         game.hardcollide.add(self)
         room.allsprites.add(self)
         room.walls.add(self)
