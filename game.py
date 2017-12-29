@@ -1,9 +1,12 @@
 # container file for game states, rooms, etc.
 import pygame as pg
+import random as r
+
+# other game files
 import player
 import events
 
-# debug
+# debuggin
 import pdb
 
 class Game:
@@ -15,9 +18,11 @@ class Game:
         self.evm.add_listener(self)
 
         # sprite groups
-        self.allsprites = pg.sprite.RenderUpdates()
-        self.player = pg.sprite.GroupSingle()
+        self.allsprites = pg.sprite.Group()
+        self.onscreen = pg.sprite.RenderUpdates()
+        self.offscreen = pg.sprite.Group()
         self.hardcollide = pg.sprite.Group()
+        self.player = pg.sprite.GroupSingle()
 
         # init time, initial tick (for dt)
         self.clock = pg.time.Clock()
@@ -83,9 +88,6 @@ class Game:
             newplayerpos = (self.currentroom.center[0] - self.p.width/2,
                             0 - self.p.height/2)
 
-        print("CUR:"+str(self.currentroom.coord))
-        print("TAR:"+str(targetcoord))
-
         # check if new room already created
         targetroom = self.visitedrooms[targetcoord[0]][targetcoord[1]]
         if targetroom == None:
@@ -94,8 +96,12 @@ class Game:
         else:
             newroom = self.visitedrooms[targetcoord[0]][targetcoord[1]] 
 
-        # set the new room
+        # retire the old room
+        self.currentroom.move_offscreen()
+
+        # activate the new room
         self.currentroom = newroom
+        self.currentroom.move_onscreen()
 
         self.p.posx, self.p.posy = newplayerpos
 
@@ -121,6 +127,7 @@ class Room:
         self.center = (self.left + self.width/2, self.height/2)
 
         # sprite groups
+        self.allsprites = pg.sprite.Group()
         self.walls = pg.sprite.Group()
 
         # make gates to previously discovered rooms open
@@ -135,12 +142,19 @@ class Room:
 
         # outer walls w/ gates
         self.make_outerwalls(opengates)
+        self.make_randomblock()
 
+    def make_randomblock(self):
         # random destructible block
-        self.wall_c = WallDestructible((self.left + self.width/3, 
-                                       self.height/3), 
-                                       (50, 50),
-                                       self, game)
+        blocksize = 50
+        blockminx = self.left + self.wallthickness
+        blockmaxx = self.right - self.wallthickness - blocksize
+        blockminy = self.wallthickness
+        blockmaxy = self.gm.screenh - self.wallthickness - blocksize
+        self.wall_c = WallDestructible((r.randrange(blockminx, blockmaxx),
+                                       r.randrange(blockminy, blockmaxy)), 
+                                       (blocksize, blocksize),
+                                       self, self.gm)
 
     def make_outerwalls(self, opengates):
         # west wall
@@ -192,6 +206,16 @@ class Room:
                                           (self.gatelength, self.wallthickness),
                                           self, self.gm)
 
+    def move_offscreen(self):
+        for sprite in self.allsprites:
+            self.gm.onscreen.remove(sprite)
+            self.gm.offscreen.add(sprite)
+
+    def move_onscreen(self):
+        # move sprites to 
+        for sprite in self.allsprites:
+            self.gm.offscreen.remove(sprite)
+            self.gm.onscreen.add(sprite)
 
 # dumb block, for the player to bounce off
 class Wall(pg.sprite.Sprite):
@@ -205,6 +229,7 @@ class Wall(pg.sprite.Sprite):
         # sprite groups
         game.allsprites.add(self)
         game.hardcollide.add(self)
+        room.allsprites.add(self)
         room.walls.add(self)
         
         # empty image
