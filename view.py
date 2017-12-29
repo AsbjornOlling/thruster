@@ -11,17 +11,19 @@ class Viewer():
     color_bg = (0, 0, 0)            # just black
     color_flame = (128, 0, 0)       # just red
     color_wall = (128, 128, 128)    # gray
-    color_walldestructible = (128, 64, 64)    # orange-y
 
     def __init__(self, screensize, game, eventmanager):
+        self.screenw, self.screenh = self.screensize = screensize
+
         # display surface
         self.screen = pg.display.set_mode(screensize)
+
+        # model obj
+        self.gm = game
 
         # event listener
         self.evm = eventmanager
         self.evm.add_listener(self)
-
-        self.gm = game
 
         # lists of areas to update
         self.update_rects = []
@@ -31,6 +33,8 @@ class Viewer():
     def update(self):
         # lay background first
         self.screen.fill(self.color_bg)
+
+        # draw all visible content
         self.draw_thrusters()
         self.draw_walls()
         self.draw_sprites()
@@ -46,29 +50,38 @@ class Viewer():
 
     # handle events
     def notify(self, event):
-        # make sure to update dead wall
         if isinstance(event, events.ObjDeath):
+            # make sure to update dead wall
             self.update_rects.append(event.rect)
+        elif isinstance(event, events.ClearScreen):
+            # update entire room
+            screenrect = pg.Rect((self.gm.marginw, 0),
+                                 (self.gm.currentroom.width,self.screenh))
+            self.update_rects.append(screenrect)
+            print(screenrect)
     
     # draw sprites and get update rects
     def draw_sprites(self):
-        for rect in self.gm.allsprites.draw(self.screen):
+        for rect in self.gm.onscreen.draw(self.screen):
             self.update_rects.append(rect)
 
     # draw the walls of currentroom and get update rects
     def draw_walls(self):
         room = self.gm.currentroom
         # draw the walls
-        # TODO don't do this every loop
+        # TODO don't update every loop
         for wall in room.walls:
             pg.draw.rect(self.screen, self.color_wall, wall.rect)
             self.update_rects.append(wall.rect)
 
             # draw damange redness
             if hasattr(wall, "health"):
+                # make totally red surface
                 reds = pg.Surface(wall.rect.size)
-                reds.set_alpha(256 - wall.health*1.5)
                 reds.fill((255, 0, 0))
+                # transparancy based on health
+                reds.set_alpha(256 - wall.health*1.5)
+                # draw on screen
                 self.screen.blit(reds, (wall.rect.x, wall.rect.y))
 
 
