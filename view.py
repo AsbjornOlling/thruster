@@ -34,10 +34,11 @@ class Viewer():
         # lay background first
         self.screen.fill(self.color_bg)
 
-        # draw all visible content
+        # draw main visible content
         self.draw_thrusters()
         self.draw_walls()
         self.draw_sprites()
+        self.draw_margins()
 
         # draw and update changed rects only
         pg.display.update(self.update_rects)
@@ -91,3 +92,14 @@ class Viewer():
             pg.draw.ellipse(self.screen, self.color_flame, thruster.rect)
             self.update_rects.append(thruster.rect)
             self.update_rects_next.append(thruster.rect)
+
+    def draw_margins(self):
+        # left cover
+        margin_L = pg.Rect((0, 0), 
+                           (self.gm.marginw, self.screenh))
+        pg.draw.rect(self.screen, self.color_bg, margin_L)
+
+        # right cover
+        margin_R = pg.Rect((self.gm.currentroom.right, 0), 
+                           (self.gm.marginw, self.screenh))
+        pg.draw.rect(self.screen, self.color_bg, margin_R)
