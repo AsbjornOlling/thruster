@@ -1,15 +1,15 @@
 # Thruster game WIP 
 import pygame as pg
 
+# game files
 import events
-
 import game
 import view
 import controls
 
 class App:
     # design resolution
-    WIDTH, HEIGHT = RES = (1366, 768)
+    WIDTH, HEIGHT = RES = (1280, 720)
 
     def __init__(self, eventmanager):
         pg.init()
