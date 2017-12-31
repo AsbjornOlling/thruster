@@ -3,10 +3,6 @@ import pygame as pg
 import events
 
 class Viewer():
-    # resolution and framerate
-    width = 500
-    height = 500
-
     # colors
     color_bg = (0, 0, 0)            # just black
     color_flame = (128, 0, 0)       # just red
@@ -36,6 +32,7 @@ class Viewer():
 
         # draw main visible content
         self.draw_thrusters()
+        self.draw_brakeshots()
         self.draw_walls()
         self.draw_sprites()
         self.draw_margins()
@@ -59,7 +56,6 @@ class Viewer():
             screenrect = pg.Rect((self.gm.marginw, 0),
                                  (self.gm.currentroom.width,self.screenh))
             self.update_rects.append(screenrect)
-            print(screenrect)
     
     # draw sprites and get update rects
     def draw_sprites(self):
@@ -70,7 +66,7 @@ class Viewer():
     def draw_walls(self):
         room = self.gm.currentroom
         # draw the walls
-        # TODO don't update every loop
+        # TODO don't update rects every loop
         for wall in room.walls:
             pg.draw.rect(self.screen, self.color_wall, wall.rect)
             self.update_rects.append(wall.rect)
@@ -85,7 +81,6 @@ class Viewer():
                 # draw on screen
                 self.screen.blit(reds, (wall.rect.x, wall.rect.y))
 
-
     # draw player's thrusters and get update rects
     def draw_thrusters(self):
         for thruster in self.gm.player.sprite.thrusters:
@@ -93,6 +88,14 @@ class Viewer():
             self.update_rects.append(thruster.rect)
             self.update_rects_next.append(thruster.rect)
 
+    # draw players brakeshot and get update rects
+    def draw_brakeshots(self):
+        for shot in self.gm.p.brakeshots:
+            pg.draw.rect(self.screen, self.color_flame, shot.rect)
+            self.update_rects.append(shot.rect)
+            self.update_rects_next.append(shot.rect)
+
+    # bits to the left and right of room-section
     def draw_margins(self):
         # left cover
         margin_L = pg.Rect((0, 0), 
