@@ -22,6 +22,7 @@ class Game:
         self.onscreen = pg.sprite.RenderUpdates()
         self.offscreen = pg.sprite.Group()
         self.hardcollide = pg.sprite.Group()
+        self.pvedamage = pg.sprite.Group()
         self.player = pg.sprite.GroupSingle()
 
         # init time, initial tick (for dt)
@@ -31,8 +32,9 @@ class Game:
         # screen size
         self.screenw, self.screenh = self.screensize = screensize
         # room size
-        self.roomsize = self.roomw, self.roomh = (self.screenw - 2*self.marginw,
-                                                  self.screenh)
+        self.roomsize = (self.screenw - 2*self.marginw,
+                         self.screenh)
+        self.roomw, self.roomh = self.roomsize
 
     def update(self):
         self.allsprites.update()
@@ -251,12 +253,12 @@ class WallDestructible(Wall):
 
     # run on every tick
     def update(self):
-        # check for collision with player thrusters
-        collisions = pg.sprite.spritecollide(self, self.gm.player.sprite.thrusters, 0)
 
-        for thruster in collisions:
+        # take damage
+        collisions = pg.sprite.spritecollide(self, self.gm.pvedamage, 0)
+        for item in collisions:
             # subtract health
-            self.health -= thruster.length * self.gm.dt / 1000
+            self.health -= item.get_damage() * self.gm.dt / 1000
 
         # kill if no health
         if self.health < 1:

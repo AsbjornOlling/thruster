@@ -70,7 +70,7 @@ class Player(pg.sprite.Sprite):
 
     # thruster sprite and acceleration
     def thrust(self, direction):
-        # look for thruster
+        # look for existing thruster
         thruster_found = False
         for thruster in self.thrusters:
             if thruster.side == direction:
@@ -178,6 +178,7 @@ class Thruster(pg.sprite.Sprite):
 
         # sprite groups
         game.allsprites.add(self)
+        game.pvedamage.add(self)
         self.player.allsprites.add(self)
         self.player.thrusters.add(self)
 
@@ -205,6 +206,10 @@ class Thruster(pg.sprite.Sprite):
         and event.direction == self.side):
             self.scale(self.growthrate)
 
+    # return damage dealt per time unit
+    def get_damage(self):
+        return int(self.length)
+
     # extend or shorten the thruster
     def scale(self, amount):
         self.length += amount * self.gm.dt
@@ -212,7 +217,9 @@ class Thruster(pg.sprite.Sprite):
     # make bounding box considering player pos, thruster size, and side mounted
     def make_box(self):
         if self.side == "W" or self.side == "E":
-            self.posy = self.player.posy + self.player.rect.height/2 - self.width/2
+            self.posy = (self.player.posy 
+                         + self.player.rect.height/2 
+                         - self.width/2)
             if self.side == "W":
                 self.posx = self.player.posx - self.length
             elif self.side == "E":
@@ -237,18 +244,21 @@ class Thruster(pg.sprite.Sprite):
 # sprite for the velocity-cancelling brakeshot
 class BrakeShot(pg.sprite.Sprite):
     size_mod = -1
-    displaytime = 1000
+    damage_mod = 20
+    displaytime = 1000 
 
     def __init__(self, vector, game):
         pg.sprite.Sprite.__init__(self)
 
         # game objects
         self.gm = game
+        self.vector = vector
         self.evm = game.evm
         self.evm.add_listener(self)
 
         # spritegroups
         self.gm.allsprites.add(self)
+        self.gm.pvedamage.add(self)
         self.gm.p.allsprites.add(self)
         self.gm.p.brakeshots.add(self)
 
@@ -273,12 +283,22 @@ class BrakeShot(pg.sprite.Sprite):
 
         self.rect = pg.Rect((posx, posy), (width, height))
 
+        # bool to ensure only dealing damage once
+        self.damage_dealt = False
+
     def update(self):
         self.displaytime -= self.gm.dt
-        print(self.displaytime)
         if self.displaytime < 0:
             self.evm.notify(events.ObjDeath(self.rect))
             self.kill()
 
     def notify(self, event):
         pass
+
+    # return damage - only once
+    def get_damage(self):
+        if not self.damage_dealt:
+            self.damage_dealt = True
+            return self.vector.length() * self.damage_mod
+        else:
+            return 0 
