@@ -163,7 +163,7 @@ class Thruster(pg.sprite.Sprite):
     growthrate = 220
     length = 40.0  # could be height or width
     width = 12.0
-    damage_mod = 700
+    damage_mod = 1
 
     def __init__(self, direction, game, eventmanager):
         pg.sprite.Sprite.__init__(self)
@@ -215,7 +215,7 @@ class Thruster(pg.sprite.Sprite):
     def scale(self, amount):
         self.length += amount * self.gm.dt
 
-    # make bounding box considering player pos, thruster size, and side mounted
+    # make box considering player pos, thruster size, and side mounted
     def make_box(self):
         if self.side == "W" or self.side == "E":
             self.posy = (self.player.posy 
@@ -302,6 +302,10 @@ class BrakeShot(pg.sprite.Sprite):
     # return damage - only once
     def get_damage(self):
         if not self.damage_dealt:
+
+            print("damaging")
+            print(self.vector.length() * self.damage_mod)
+
             self.damage_dealt = True
             return self.vector.length() * self.damage_mod
         else:

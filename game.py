@@ -258,7 +258,8 @@ class WallDestructible(Wall):
         collisions = pg.sprite.spritecollide(self, self.gm.pvedamage, 0)
         for item in collisions:
             # subtract health
-            self.health -= item.get_damage() * self.gm.dt / 1000
+            self.health -= item.get_damage() * self.gm.dt
+            print(self.health)
 
         # kill if no health
         if self.health < 1:
