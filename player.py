@@ -7,7 +7,7 @@ import events
 
 class Player(pg.sprite.Sprite):
     # starting position on spawn, float precision
-    speedmod = 0.0001
+    speedmod = 100
     bounce_factor = -0.5  # must be between -1 and 0
     brake_factor = -0.05  # small negative number
     width = 50
@@ -159,10 +159,11 @@ class Player(pg.sprite.Sprite):
 # grows, shrinks and collides - but doesnt't accelerate shit
 class Thruster(pg.sprite.Sprite):
     # constants for all classes
-    shrinkrate = -0.20
-    growthrate = 0.22
+    shrinkrate = -200
+    growthrate = 220
     length = 40.0  # could be height or width
     width = 12.0
+    damage_mod = 700
 
     def __init__(self, direction, game, eventmanager):
         pg.sprite.Sprite.__init__(self)
@@ -208,7 +209,7 @@ class Thruster(pg.sprite.Sprite):
 
     # return damage dealt per time unit
     def get_damage(self):
-        return int(self.length)
+        return int(self.length * self.damage_mod)
 
     # extend or shorten the thruster
     def scale(self, amount):
@@ -243,9 +244,9 @@ class Thruster(pg.sprite.Sprite):
 
 # sprite for the velocity-cancelling brakeshot
 class BrakeShot(pg.sprite.Sprite):
-    size_mod = -1
-    damage_mod = 20
-    displaytime = 1000 
+    size_mod = -500
+    damage_mod = 9001
+    displaytime = 10 
 
     def __init__(self, vector, game):
         pg.sprite.Sprite.__init__(self)
@@ -266,8 +267,8 @@ class BrakeShot(pg.sprite.Sprite):
         self.image = pg.image.load("0.png").convert_alpha()
 
         # bounding box 
-        width = int(vector[0] * self.size_mod)
-        height = int(vector[1] * self.size_mod)
+        width = int(vector[0] * self.size_mod + 10)
+        height = int(vector[1] * self.size_mod + 10)
         posx, posy = game.p.rect.center
 
         minsize = self.gm.p.width//2
@@ -282,16 +283,19 @@ class BrakeShot(pg.sprite.Sprite):
             posy -= height
 
         self.rect = pg.Rect((posx, posy), (width, height))
+        print(self.rect)
 
         # bool to ensure only dealing damage once
         self.damage_dealt = False
 
+    # run on every tick
     def update(self):
         self.displaytime -= self.gm.dt
         if self.displaytime < 0:
             self.evm.notify(events.ObjDeath(self.rect))
             self.kill()
 
+    # deal with eventmanager events
     def notify(self, event):
         pass
 

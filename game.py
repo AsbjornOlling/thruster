@@ -45,7 +45,7 @@ class Game:
 
     def tick(self):
         # tick at 60fps
-        self.dt = self.clock.tick(60)
+        self.dt = self.clock.tick(60) / 1000.0
 
     def start(self):
         # make empty 512x512 grid
