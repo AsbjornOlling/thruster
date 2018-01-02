@@ -1,5 +1,7 @@
 # Some design notes
 
+## Broad notes
+
 ### Architecture overview
 
 * App 
@@ -58,6 +60,52 @@ Controller: on_event()
 *Controller to model:* all kb input, mouse input, exit signals
 *Controller to viewer:* n/a
 
+
+### Room generator scratch notes
+
+**Criteria:**
+
+	* Open gate on entrypoint
+	* Makes walls in every room
+	* Content based on progress
+	* Coherent coordinates
+
+**Required input:**
+
+	* Previous room
+		- previous coords
+	* Game object
+		- game progress
+
+**Possible solutions:**
+
+	* Everything in room constructor
+		* **Pros:**
+			- close to relevant object
+			- smaller gamestate object
+		- **Cons:**
+			- pass more data to room (last room)
+			- larger room class
+			- further from progress params
+
+	* Method in gamestate object
+		* **Pros:**
+			- closer to progress params
+		* **Cons:**
+			- complicates gamestate object purpose
+
+	* Separate generator object
+		* **Pros:**
+			- common random generator, seed
+			- evt. other utils
+		* **Cons:**
+			- spaghet
+
+### Brake-shot collision scratch notes
+
+**Core problem:**
+- detect collisions
+- sc
 
 ## Goals and milestones
 
@@ -135,3 +183,19 @@ Controller: on_event()
 
 	* Completed new, more general collision method. 
 	* Added color change for destructiblewall class
+
+### Dec. 27
+
+**Goals:**
+
+	* Destructible gates
+	* Detect leaving the room
+	* Room coordinates
+	* Rooms grid
+
+**Accomplished:**
+
+	* Walls now add themselves to room spritegroup
+	* Added destructible gates to room walls
+	* Detect leaving the room
+	* Started notes about room generation

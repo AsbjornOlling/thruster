@@ -34,7 +34,21 @@ class PlayerThrust(Event):
     def __init__(self, direction):
         self.direction = direction
 
+class PlayerBrake(Event):
+    def __init__(self):
+        pass
+
+# when a player moves out of the current room
+class RoomExit(Event):
+    def __init__(self, direction):
+        self.direction = direction
+
+class ClearScreen(Event):
+    def __init__(self):
+        pass
+
 # when an object dies
 class ObjDeath(Event):
     def __init__(self, rect):
         self.rect = rect
+

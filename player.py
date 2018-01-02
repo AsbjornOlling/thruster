@@ -244,9 +244,9 @@ class Thruster(pg.sprite.Sprite):
 
 # sprite for the velocity-cancelling brakeshot
 class BrakeShot(pg.sprite.Sprite):
-    size_mod = -500
-    damage_mod = 9001
-    displaytime = 10 
+    size_mod = -750
+    damage_mod = 50001
+    displaytime = 0.2 
 
     def __init__(self, vector, game):
         pg.sprite.Sprite.__init__(self)
@@ -266,13 +266,13 @@ class BrakeShot(pg.sprite.Sprite):
         # empty image
         self.image = pg.image.load("0.png").convert_alpha()
 
-        # bounding box 
-        width = int(vector[0] * self.size_mod + 10)
-        height = int(vector[1] * self.size_mod + 10)
-        posx, posy = game.p.rect.center
+        minsize = self.gm.p.width
+        maxsize = self.gm.p.width * 4
 
-        minsize = self.gm.p.width//2
-        maxsize = 2 * int(self.gm.p.width)
+        # bounding box 
+        width = int(vector[0] * self.size_mod)
+        height = int(vector[1] * self.size_mod)
+        posx, posy = game.p.rect.center
 
         # handle negative numbers
         if width < 0:

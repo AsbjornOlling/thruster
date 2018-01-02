@@ -1,4 +1,7 @@
 # viewer module
+import math
+import random
+
 import pygame as pg
 import events
 
@@ -37,8 +40,10 @@ class Viewer():
         self.draw_sprites()
         self.draw_margins()
 
-        # draw and update changed rects only
+        # update changed rects only
         pg.display.update(self.update_rects)
+        # update all all
+        pg.display.update()
 
         # reset lists
         self.update_rects = []
@@ -91,9 +96,28 @@ class Viewer():
     # draw players brakeshot and get update rects
     def draw_brakeshots(self):
         for shot in self.gm.p.brakeshots:
-            pg.draw.rect(self.screen, self.color_flame, shot.rect)
+            # draw the bounding box
+            #pg.draw.rect(self.screen, self.color_flame, shot.rect)
             self.update_rects.append(shot.rect)
             self.update_rects_next.append(shot.rect)
+
+            if shot.vector[0] != 0:
+                angle = shot.vector[1] / shot.vector[0]
+            else: 
+                # avoid dividing by zero
+                angle = 0
+
+            length = shot.vector.length()
+            origin = self.gm.p.rect.center
+            destpoint = (origin[0] + shot.vector[0], 
+                         origin[1] + shot.vector[0]*angle)
+
+            # draw shot lines
+            no_of_shots = 10
+            for i in range(0, no_of_shots):
+                effectangle = angle + random.randrange(-2, 2)
+                pg.draw.line(self.screen, self.color_flame, 
+                             origin, destpoint)
 
     # bits to the left and right of room-section
     def draw_margins(self):

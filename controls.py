@@ -16,6 +16,8 @@ class KeyboardController:
                 # Q: exit game
                 if event.key == K_q:
                     self.evm.notify(events.Quit())
+                elif event.key == K_SPACE:
+                    self.evm.notify(events.PlayerBrake())
 
         # get held keys
         keystate = pg.key.get_pressed()
