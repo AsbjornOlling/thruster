@@ -10,8 +10,8 @@ class Player(pg.sprite.Sprite):
     speedmod = 100
     bounce_factor = -0.5  # must be between -1 and 0
     brake_factor = -0.05  # small negative number
-    width = 50
-    height = 50
+    width = 32
+    height = 32
 
     def __init__(self, game):
         pg.sprite.Sprite.__init__(self)
@@ -161,8 +161,8 @@ class Thruster(pg.sprite.Sprite):
     # constants for all classes
     shrinkrate = -200
     growthrate = 220
-    length = 40.0  # could be height or width
-    width = 12.0
+    length = 20.0  # could be height or width
+    width = 10.0
     damage_mod = 1
 
     def __init__(self, direction, game, eventmanager):

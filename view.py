@@ -43,7 +43,7 @@ class Viewer():
         # update changed rects only
         pg.display.update(self.update_rects)
         # update all all
-        pg.display.update()
+        #pg.display.update()
 
         # reset lists
         self.update_rects = []
