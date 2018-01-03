@@ -37,8 +37,8 @@ class Viewer():
 
         # draw main visible content
         self.draw_thrusters()
-        self.draw_walls()
         self.draw_sprites()
+        self.draw_walls()
         self.draw_margins()
 
         # update changed rects only

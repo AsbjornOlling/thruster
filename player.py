@@ -279,7 +279,7 @@ class BrakeShot(pg.sprite.Sprite):
 
         # find center for new rect by rotating a pre-defined center
         # TODO generalize this magic constant to enable scaling
-        center_rightx =  self.player.rect.centerx + 48
+        center_rightx =  self.player.rect.centerx + 28
         center_righty = self.player.rect.centery
         center_right = (center_rightx, center_righty)
         newcenter = utils.rotate_point(self.player.rect.center, center_right, -1 * self.angle_r)
