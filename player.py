@@ -249,12 +249,12 @@ class BrakeShot(pg.sprite.Sprite):
     damage_mod = 50001
     displaytime = 0.2 
 
-    def __init__(self, vector, game):
+    def __init__(self, speedvector, game):
         pg.sprite.Sprite.__init__(self)
 
         # game objects
         self.gm = game
-        self.vector = vector
+        self.vector = -1 * speedvector
         self.evm = game.evm
         self.evm.add_listener(self)
 
@@ -265,16 +265,27 @@ class BrakeShot(pg.sprite.Sprite):
         self.gm.p.allsprites.add(self)
         self.gm.p.brakeshots.add(self)
 
+        # get angle to positive x-axis
+        self.angle = self.vector.angle_to(pg.math.Vector2((1, 0)))
+
         # load animation
         self.animation = ani.Animation("brakeblast.png", 64)
         self.image = self.animation.get_frame_no(0)
+
+        # get rect
+        self.rect = pg.transform.rotate(self.image, self.angle).get_rect()
+
+        # TODO
+        # get starting coords for rect using width an height
+
+        print(self.rect)
 
         minsize = self.gm.p.width
         maxsize = self.gm.p.width * 4
 
         # bounding box 
-        width = int(vector[0] * self.size_mod)
-        height = int(vector[1] * self.size_mod)
+        width = int(self.vector[0] * self.size_mod)
+        height = int(self.vector[1] * self.size_mod)
         posx, posy = game.p.rect.center
 
         # handle negative numbers
@@ -285,7 +296,7 @@ class BrakeShot(pg.sprite.Sprite):
             height = abs(height)
             posy -= height
 
-        self.rect = pg.Rect((posx, posy), (width, height))
+        #self.rect = pg.Rect((posx, posy), (width, height))
 
         # bool to ensure only dealing damage once
         self.damage_dealt = False
@@ -295,7 +306,7 @@ class BrakeShot(pg.sprite.Sprite):
         self.displaytime -= self.gm.dt
 
         self.image = self.animation.step_forward()
-        self.image = pg.transform.rotate(self.image, - 45)
+        self.image = pg.transform.rotate(self.image, self.angle)
 
         if self.displaytime < 0:
             self.evm.notify(events.ObjDeath(self.rect))
