@@ -269,42 +269,25 @@ class BrakeShot(pg.sprite.Sprite):
         self.gm.p.brakeshots.add(self)
 
         # get angle to positive x-axis
-        self.angle = self.vector.angle_to(pg.math.Vector2((1, 0)))
-        radangle = math.radians(self.angle)
+        self.angle_d = self.vector.angle_to(pg.math.Vector2((1, 0)))
+        self.angle_r = math.radians(self.angle_d)
 
         # load animation
         self.animation = ani.Animation("brakeblast.png", 64)
         self.image = self.animation.get_frame_no(0)
 
-        # get rect
-        self.rect = pg.transform.rotate(self.image, self.angle).get_rect()
+        # find center for new rect
+        center_rightx =  self.player.rect.centerx + 48# TODO generalize this magic constant
+        center_righty = self.player.rect.centery
+        center_right = (center_rightx, center_righty)
+        newcenter = self.gm.rotate_point(self.player.rect.center, center_right, -1 * self.angle_r)
 
-        # get rect position
-        self.rect.x = self.player.rect.x
-        self.rect.y = self.player.rect.y
-        self.rect.x += math.cos(radangle) * self.animation.width
-        self.rect.y += math.sin(radangle) * self.animation.height * -1
+        # get rect from image
+        self.rect = pg.transform.rotate(self.image, self.angle_d).get_rect(center = newcenter)
 
         print(str(self.vector.length()))
         print(self.rect)
 
-        minsize = self.gm.p.width
-        maxsize = self.gm.p.width * 4
-
-        # bounding box 
-        width = int(self.vector[0] * self.size_mod)
-        height = int(self.vector[1] * self.size_mod)
-        posx, posy = game.p.rect.center
-
-        # handle negative numbers
-        if width < 0:
-            width = abs(width)
-            posx -= width
-        if height < 0:
-            height = abs(height)
-            posy -= height
-
-        #self.rect = pg.Rect((posx, posy), (width, height))
 
         # bool to ensure only dealing damage once
         self.damage_dealt = False
@@ -313,9 +296,10 @@ class BrakeShot(pg.sprite.Sprite):
     def update(self):
         self.displaytime -= self.gm.dt
 
+        # get frame from animation
         self.image = self.animation.step_forward()
-        self.image = pg.transform.rotate(self.image, self.angle)
-        self.image.fill((255, 255, 255))
+        # rotate frame 
+        self.image = pg.transform.rotate(self.image, self.angle_d)
 
         if self.displaytime < 0:
             self.evm.notify(events.ObjDeath(self.rect))
