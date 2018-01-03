@@ -1,6 +1,7 @@
 # container file for game states, rooms, etc.
 import pygame as pg
 import random as r
+import math
 
 # other game files
 import player
@@ -110,6 +111,8 @@ class Game:
 
         # clear screen to render new room
         self.evm.notify(events.ClearScreen())
+
+
 
 # contains a sprite group w/ walls
 class Room:

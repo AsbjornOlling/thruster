@@ -35,7 +35,7 @@ class Animation:
 
     def get_frame_no(self, no):
         # crop image by blitting onto smaller surface
-        frame = pg.Surface((self.width, self.offset))
+        frame = pg.Surface((self.width, self.offset)).convert_alpha()
         
         area = pg.Rect((0, no * self.offset), (self.width, self.offset))
         frame.blit(self.spritesheet, (0, 0), area)

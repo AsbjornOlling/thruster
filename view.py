@@ -37,7 +37,6 @@ class Viewer():
 
         # draw main visible content
         self.draw_thrusters()
-        # self.draw_brakeshots()  # currently working on replacing with spritesheet animation
         self.draw_walls()
         self.draw_sprites()
         self.draw_margins()
@@ -94,32 +93,6 @@ class Viewer():
             pg.draw.ellipse(self.screen, self.color_flame, thruster.rect)
             self.update_rects.append(thruster.rect)
             self.update_rects_next.append(thruster.rect)
-
-    # draw players brakeshot and get update rects
-    def draw_brakeshots(self):
-        for shot in self.gm.p.brakeshots:
-            # draw the bounding box
-            #pg.draw.rect(self.screen, self.color_flame, shot.rect)
-            self.update_rects.append(shot.rect)
-            self.update_rects_next.append(shot.rect)
-
-            if shot.vector[0] != 0:
-                angle = shot.vector[1] / shot.vector[0]
-            else: 
-                # avoid dividing by zero
-                angle = 0
-
-            length = shot.vector.length()
-            origin = self.gm.p.rect.center
-            destpoint = (origin[0] + shot.vector[0], 
-                         origin[1] + shot.vector[0]*angle)
-
-            # draw shot lines
-            no_of_shots = 10
-            for i in range(0, no_of_shots):
-                effectangle = angle + random.randrange(-2, 2)
-                pg.draw.line(self.screen, self.color_flame, 
-                             origin, destpoint)
 
     # bits to the left and right of room-section
     def draw_margins(self):

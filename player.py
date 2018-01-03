@@ -277,8 +277,9 @@ class BrakeShot(pg.sprite.Sprite):
         self.animation = ani.Animation("brakeblast.png", 64)
         self.image = self.animation.get_frame_no(0)
 
-        # find center for new rect
-        center_rightx =  self.player.rect.centerx + 48# TODO generalize this magic constant
+        # find center for new rect by rotating a pre-defined center
+        # TODO generalize this magic constant to enable scaling
+        center_rightx =  self.player.rect.centerx + 48
         center_righty = self.player.rect.centery
         center_right = (center_rightx, center_righty)
         newcenter = utils.rotate_point(self.player.rect.center, center_right, -1 * self.angle_r)
