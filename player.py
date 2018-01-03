@@ -1,5 +1,6 @@
 import pygame as pg
 import math
+import utils
 
 # other game files
 import game
@@ -280,7 +281,7 @@ class BrakeShot(pg.sprite.Sprite):
         center_rightx =  self.player.rect.centerx + 48# TODO generalize this magic constant
         center_righty = self.player.rect.centery
         center_right = (center_rightx, center_righty)
-        newcenter = self.gm.rotate_point(self.player.rect.center, center_right, -1 * self.angle_r)
+        newcenter = utils.rotate_point(self.player.rect.center, center_right, -1 * self.angle_r)
 
         # get rect from image
         self.rect = pg.transform.rotate(self.image, self.angle_d).get_rect(center = newcenter)
