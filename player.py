@@ -254,9 +254,12 @@ class BrakeShot(pg.sprite.Sprite):
 
         # game objects
         self.gm = game
-        self.vector = -1 * speedvector
+        self.player = game.p
         self.evm = game.evm
         self.evm.add_listener(self)
+
+        # make vector in opposite direction from player 
+        self.vector = -1 * speedvector
 
         # spritegroups
         self.gm.allsprites.add(self)
@@ -267,6 +270,7 @@ class BrakeShot(pg.sprite.Sprite):
 
         # get angle to positive x-axis
         self.angle = self.vector.angle_to(pg.math.Vector2((1, 0)))
+        radangle = math.radians(self.angle)
 
         # load animation
         self.animation = ani.Animation("brakeblast.png", 64)
@@ -275,9 +279,13 @@ class BrakeShot(pg.sprite.Sprite):
         # get rect
         self.rect = pg.transform.rotate(self.image, self.angle).get_rect()
 
-        # TODO
-        # get starting coords for rect using width an height
+        # get rect position
+        self.rect.x = self.player.rect.x
+        self.rect.y = self.player.rect.y
+        self.rect.x += math.cos(radangle) * self.animation.width
+        self.rect.y += math.sin(radangle) * self.animation.height * -1
 
+        print(str(self.vector.length()))
         print(self.rect)
 
         minsize = self.gm.p.width
@@ -307,6 +315,7 @@ class BrakeShot(pg.sprite.Sprite):
 
         self.image = self.animation.step_forward()
         self.image = pg.transform.rotate(self.image, self.angle)
+        self.image.fill((255, 255, 255))
 
         if self.displaytime < 0:
             self.evm.notify(events.ObjDeath(self.rect))
