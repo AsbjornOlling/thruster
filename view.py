@@ -4,6 +4,7 @@ import random
 
 import pygame as pg
 import events
+import animation as ani
 
 class Viewer():
     # colors
@@ -28,6 +29,7 @@ class Viewer():
         self.update_rects = []
         self.update_rects_next = []
 
+
     # run on every tick
     def update(self):
         # lay background first
@@ -35,7 +37,7 @@ class Viewer():
 
         # draw main visible content
         self.draw_thrusters()
-        self.draw_brakeshots()
+        # self.draw_brakeshots()  # currently working on replacing with spritesheet animation
         self.draw_walls()
         self.draw_sprites()
         self.draw_margins()
@@ -43,7 +45,7 @@ class Viewer():
         # update changed rects only
         pg.display.update(self.update_rects)
         # update all all
-        #pg.display.update()
+        # pg.display.update()
 
         # reset lists
         self.update_rects = []

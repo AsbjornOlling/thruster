@@ -4,6 +4,7 @@ import math
 # other game files
 import game
 import events
+import animation as ani
 
 class Player(pg.sprite.Sprite):
     # starting position on spawn, float precision
@@ -259,12 +260,14 @@ class BrakeShot(pg.sprite.Sprite):
 
         # spritegroups
         self.gm.allsprites.add(self)
+        self.gm.onscreen.add(self)
         self.gm.pvedamage.add(self)
         self.gm.p.allsprites.add(self)
         self.gm.p.brakeshots.add(self)
 
-        # empty image
-        self.image = pg.image.load("0.png").convert_alpha()
+        # load animation
+        self.animation = ani.Animation("brakeblast.png", 64)
+        self.image = self.animation.get_frame_no(0)
 
         minsize = self.gm.p.width
         maxsize = self.gm.p.width * 4
@@ -283,7 +286,6 @@ class BrakeShot(pg.sprite.Sprite):
             posy -= height
 
         self.rect = pg.Rect((posx, posy), (width, height))
-        print(self.rect)
 
         # bool to ensure only dealing damage once
         self.damage_dealt = False
@@ -291,6 +293,10 @@ class BrakeShot(pg.sprite.Sprite):
     # run on every tick
     def update(self):
         self.displaytime -= self.gm.dt
+
+        self.image = self.animation.step_forward()
+        self.image = pg.transform.rotate(self.image, - 45)
+
         if self.displaytime < 0:
             self.evm.notify(events.ObjDeath(self.rect))
             self.kill()
