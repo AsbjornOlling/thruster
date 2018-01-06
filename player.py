@@ -138,6 +138,7 @@ class Player(pg.sprite.Sprite):
             self.fuel -= amount
         elif not self.dead:
             print("DEATH")
+            self.fuel = 0
             self.dead = True
 
 

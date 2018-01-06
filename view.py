@@ -5,13 +5,17 @@ import random
 import pygame as pg
 import events
 import animation as ani
+import colors
 
 class Viewer():
     # colors
-    color_bg = (0, 0, 0)            # just black
-    color_margin = (20, 20, 20)  # dark grey
-    color_flame = (128, 0, 0)       # just red
-    color_wall = (128, 128, 128)    # gray
+    # main game screen
+    color_bg = colors.get_rgb(colors.wb7)
+    color_wall = colors.get_rgb(colors.wb6)    # gray
+    color_flame = colors.get_rgb(colors.pp3)
+    # hud ui
+    color_margin = colors.get_rgb(colors.by3)
+    color_dial = colors.get_rgb(colors.gb4)
 
     def __init__(self, screensize, game, eventmanager):
         self.screenw, self.screenh = self.screensize = screensize
@@ -30,6 +34,9 @@ class Viewer():
         self.update_rects = []
         self.update_rects_next = []
 
+        # bool to control only updating margins once
+        self.margins_updated = False
+
 
     # run on every tick
     def update(self):
@@ -41,10 +48,9 @@ class Viewer():
         self.draw_sprites()
         self.draw_walls()
         self.draw_margins()
-        self.draw_fuelbar()
 
         # update changed rects only
-        # pg.display.update(self.update_rects)
+        pg.display.update(self.update_rects)
         # update all all
         pg.display.update()
 
@@ -110,6 +116,20 @@ class Viewer():
                            (self.gm.marginw, self.screenh))
         pg.draw.rect(self.screen, self.color_margin, margin_R)
 
+        # add margins to update list
+        # only on first run
+        if not self.margins_updated:
+            self.update_rects.append(margin_R)
+            self.update_rects_next.append(margin_R)
+            self.update_rects.append(margin_L)
+            self.update_rects_next.append(margin_L)
+            self.margins_updated = True
+
+        # draw fuel bar on left margin
+        self.draw_fuelbar()
+        # speed information on right margin
+        self.draw_velocitypanel()
+
 
     # draw red bar on left panel, length based on player fuel
     def draw_fuelbar(self):
@@ -117,10 +137,29 @@ class Viewer():
         bar_width = 40
         fuel_height = self.gm.p.fuel / self.gm.p.maxfuel * bar_height
 
-        posx = self.gm.marginw/2 - bar_width/2
-        posy = (self.screenh - bar_height)/2 + (bar_height - fuel_height)
+        fuelposx = self.gm.marginw/2 - bar_width/2
+        fuelposy = (self.screenh - bar_height)/2 + (bar_height - fuel_height)
 
         # make rect and draw bar
-        fuelbar = pg.Rect((posx, posy), (bar_width, fuel_height))
-        pg.draw.rect(self.screen, self.color_flame, fuelbar)
+        fuel = pg.Rect((fuelposx, fuelposy), (bar_width, fuel_height))
+        pg.draw.rect(self.screen, self.color_flame, fuel)
 
+        barposx = fuelposx
+        barposy = (self.screenh - bar_height)/2 
+
+        # add the entire fuelbar to update rects
+        bar = pg.Rect((barposx, barposy), (bar_width, bar_height))
+        self.update_rects.append(bar)
+        self.update_rects_next.append(bar)
+
+
+    def draw_velocitypanel(self):
+        # angle-meter
+        posx = (self.gm.marginw 
+                + self.gm.currentroom.width 
+                + self.gm.marginw//2)
+        posy = self.screenh//3
+        radius = 48
+        pg.draw.circle(self.screen, self.color_dial, (posx, posy), radius)
+
+        # speed vector length

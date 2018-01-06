@@ -11,7 +11,7 @@ import events
 import pdb
 
 class Game:
-    marginw = 170
+    marginw = 128
 
     def __init__(self, screensize, eventmanager):
         # eventmanager
