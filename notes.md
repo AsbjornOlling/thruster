@@ -107,6 +107,18 @@ Controller: on_event()
 - detect collisions
 - sc
 
+
+### What happens on death
+
+```python
+p.death = True
+```
+
+	- no thruster growth
+	- no new thrusters
+	- no brakeshots
+	- no more fuel refill
+
 ## Goals and milestones
 
 ### Milestones
@@ -218,3 +230,8 @@ Jan 14:
 
 
 **Accomplished:**
+
+	* Fuel comsumption bar
+	* Max length for player truster
+	* Width scaling for player thruster
+

@@ -39,8 +39,9 @@ class Player(pg.sprite.Sprite):
         self.thrusters = pg.sprite.Group()
         self.brakeshots = pg.sprite.Group()
 
-        # start at full fuel
+        # start in good conditions
         self.fuel = self.maxfuel
+        self.dead = False
 
         # spawn at room center
         self.posx = game.currentroom.center[0] - self.width/2
@@ -64,7 +65,8 @@ class Player(pg.sprite.Sprite):
         self.rect.y = self.posy
 
         # refill fuel
-        self.add_fuel(self.fuel_refillrate * self.gm.dt)
+        if not self.dead:
+            self.add_fuel(self.fuel_refillrate * self.gm.dt)
 
         # detect leaving room
         if self.rect.right < self.gm.currentroom.left:
@@ -79,9 +81,9 @@ class Player(pg.sprite.Sprite):
 
     # run on event receive
     def notify(self, event):
-        if isinstance(event, events.PlayerThrust):
+        if isinstance(event, events.PlayerThrust) and not self.dead:
             self.thrust(event.direction)
-        elif isinstance(event, events.PlayerBrake):
+        elif isinstance(event, events.PlayerBrake) and not self.dead:
             self.brake()
 
 
@@ -128,10 +130,15 @@ class Player(pg.sprite.Sprite):
         if self.fuel < self.maxfuel:
             self.fuel += amount
 
+
     # remove fuel if there's any
     def remove_fuel(self, amount):
-        if self.fuel > 0:
+        # if there's enough fuel left
+        if self.fuel - amount > 0:
             self.fuel -= amount
+        elif not self.dead:
+            print("DEATH")
+            self.dead = True
 
 
     # calculate new position, including bouncing
@@ -147,6 +154,8 @@ class Player(pg.sprite.Sprite):
                 self.bounce(obj)
 
 
+    # bounce off of walls
+    # TODO take damage
     def bounce(self, obj):
         # find closest point on collision object
         closestx = self.rect.centerx
@@ -201,7 +210,7 @@ class Thruster(pg.sprite.Sprite):
     growthrate = 220  # used only when key held
     width_growth_ratio = 0.20  # times length growth rate
     damage_mod = 1
-    fuel_consumption = 10
+    fuel_consumption = 5
 
 
     def __init__(self, direction, game, eventmanager):
@@ -247,7 +256,8 @@ class Thruster(pg.sprite.Sprite):
         # grow when player thrusts
         if (isinstance(event, events.PlayerThrust)
             and event.direction == self.side
-            and self.length <= self.max_length):
+            and self.length <= self.max_length
+            and not self.player.dead):
             self.scale(self.growthrate)
             self.consume_fuel()
 

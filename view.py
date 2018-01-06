@@ -9,7 +9,7 @@ import animation as ani
 class Viewer():
     # colors
     color_bg = (0, 0, 0)            # just black
-    color_margin = (50, 50, 50)  # dark grey
+    color_margin = (20, 20, 20)  # dark grey
     color_flame = (128, 0, 0)       # just red
     color_wall = (128, 128, 128)    # gray
 
