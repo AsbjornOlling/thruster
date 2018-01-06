@@ -40,6 +40,7 @@ class Viewer():
         self.draw_sprites()
         self.draw_walls()
         self.draw_margins()
+        self.draw_fuelbar()
 
         # update changed rects only
         # pg.display.update(self.update_rects)
@@ -51,6 +52,7 @@ class Viewer():
         for rect in self.update_rects_next:
             self.update_rects.append(rect)
         self.update_rects_next = []
+
 
     # handle events
     def notify(self, event):
@@ -94,6 +96,7 @@ class Viewer():
             self.update_rects.append(thruster.rect)
             self.update_rects_next.append(thruster.rect)
 
+
     # bits to the left and right of room-section
     def draw_margins(self):
         # left cover
@@ -105,3 +108,18 @@ class Viewer():
         margin_R = pg.Rect((self.gm.currentroom.right, 0), 
                            (self.gm.marginw, self.screenh))
         pg.draw.rect(self.screen, self.color_bg, margin_R)
+
+
+    # draw red bar on left panel, length based on player fuel
+    def draw_fuelbar(self):
+        bar_height = self.screenh * 0.8
+        bar_width = 20
+        fuel_height = self.gm.p.fuel / self.gm.p.maxfuel * bar_height
+
+        posx = self.gm.marginw/2 - bar_width/2
+        posy = (self.screenh - bar_height)/2
+
+        # make rect and draw bar
+        fuelbar = pg.Rect((posx, posy), (bar_width, fuel_height))
+        pg.draw.rect(self.screen, self.color_flame, fuelbar)
+

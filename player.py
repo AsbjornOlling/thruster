@@ -16,8 +16,9 @@ class Player(pg.sprite.Sprite):
     speedmod = 100
     bounce_factor = -0.5  # must be between -1 and 0
     brake_factor = -0.1  # small negative number
-    brake_minspeed = 2  # length of speedvector
+    brake_minspeed = 1.5  # length of speedvector
     maxfuel = 100.0
+    fuel_refillrate = 5  # per time unit
 
 
     def __init__(self, game):
@@ -61,6 +62,9 @@ class Player(pg.sprite.Sprite):
         # update bounding box position
         self.rect.x = self.posx
         self.rect.y = self.posy
+
+        # refill fuel
+        self.add_fuel(self.fuel_refillrate * self.gm.dt)
 
         # detect leaving room
         if self.rect.right < self.gm.currentroom.left:
@@ -117,6 +121,17 @@ class Player(pg.sprite.Sprite):
     # adds a vector to the speed vector
     def accelerate(self, change):
         self.speed += tuple(c * self.gm.dt for c in change)
+
+
+    # add an amount of fuel
+    def add_fuel(self, amount):
+        if self.fuel < self.maxfuel:
+            self.fuel += amount
+
+    # remove fuel if there's any
+    def remove_fuel(self, amount):
+        if self.fuel > 0:
+            self.fuel -= amount
 
 
     # calculate new position, including bouncing
@@ -182,10 +197,11 @@ class Thruster(pg.sprite.Sprite):
     length = 20.0  # could be height or width
     width = 10.0
     max_length = 75
-    shrinkrate = -200
-    growthrate = 220
-    width_growth_ratio = 0.5  # times length growth rate
+    shrinkrate = -200  # used on every update
+    growthrate = 220  # used only when key held
+    width_growth_ratio = 0.20  # times length growth rate
     damage_mod = 1
+    fuel_consumption = 10
 
 
     def __init__(self, direction, game, eventmanager):
@@ -195,10 +211,11 @@ class Thruster(pg.sprite.Sprite):
         self.evm = eventmanager
         self.evm.add_listener(self)
 
+        # gamestate
         self.gm = game
 
         # the sprite that thruster is attached to
-        self.player = self.gm.player.sprite
+        self.player = self.gm.p
 
         # sprite groups
         game.allsprites.add(self)
@@ -232,16 +249,23 @@ class Thruster(pg.sprite.Sprite):
             and event.direction == self.side
             and self.length <= self.max_length):
             self.scale(self.growthrate)
+            self.consume_fuel()
 
 
     # return damage dealt per time unit
     def get_damage(self):
         return int(self.length * self.damage_mod)
 
+    
+    # use fuel when powered up
+    def consume_fuel(self):
+        self.player.remove_fuel(self.fuel_consumption * self.gm.dt)
+        
 
     # extend or shorten the thruster
     def scale(self, amount):
         self.length += amount * self.gm.dt
+        self.width += amount * self.width_growth_ratio * self.gm.dt
 
 
     # make box considering player pos, thruster size, and side mounted
