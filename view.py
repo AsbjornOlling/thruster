@@ -9,6 +9,7 @@ import animation as ani
 class Viewer():
     # colors
     color_bg = (0, 0, 0)            # just black
+    color_margin = (50, 50, 50)  # dark grey
     color_flame = (128, 0, 0)       # just red
     color_wall = (128, 128, 128)    # gray
 
@@ -102,22 +103,22 @@ class Viewer():
         # left cover
         margin_L = pg.Rect((0, 0), 
                            (self.gm.marginw, self.screenh))
-        pg.draw.rect(self.screen, self.color_bg, margin_L)
+        pg.draw.rect(self.screen, self.color_margin, margin_L)
 
         # right cover
         margin_R = pg.Rect((self.gm.currentroom.right, 0), 
                            (self.gm.marginw, self.screenh))
-        pg.draw.rect(self.screen, self.color_bg, margin_R)
+        pg.draw.rect(self.screen, self.color_margin, margin_R)
 
 
     # draw red bar on left panel, length based on player fuel
     def draw_fuelbar(self):
-        bar_height = self.screenh * 0.8
-        bar_width = 20
+        bar_height = self.screenh * 0.5
+        bar_width = 40
         fuel_height = self.gm.p.fuel / self.gm.p.maxfuel * bar_height
 
         posx = self.gm.marginw/2 - bar_width/2
-        posy = (self.screenh - bar_height)/2
+        posy = (self.screenh - bar_height)/2 + (bar_height - fuel_height)
 
         # make rect and draw bar
         fuelbar = pg.Rect((posx, posy), (bar_width, fuel_height))
