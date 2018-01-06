@@ -54,6 +54,7 @@ class Player(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.move()
 
+
     # run on every tick
     def update(self):
         self.move()
@@ -71,12 +72,14 @@ class Player(pg.sprite.Sprite):
         elif self.rect.top > self.gm.screenh:
             self.evm.notify(events.RoomExit("S"))
 
+
     # run on event receive
     def notify(self, event):
         if isinstance(event, events.PlayerThrust):
             self.thrust(event.direction)
         elif isinstance(event, events.PlayerBrake):
             self.brake()
+
 
     # thruster sprite and acceleration
     def thrust(self, direction):
@@ -100,6 +103,7 @@ class Player(pg.sprite.Sprite):
         elif direction == "S":
             self.accelerate((0, -1))
 
+
     # "brakeshot" - stops momentum, deals a lot of damage
     def brake(self):
         if self.speed.length() > self.brake_minspeed:
@@ -109,9 +113,11 @@ class Player(pg.sprite.Sprite):
         else:
             print("Going too slow to brake")
 
+
     # adds a vector to the speed vector
     def accelerate(self, change):
         self.speed += tuple(c * self.gm.dt for c in change)
+
 
     # calculate new position, including bouncing
     def move(self):
@@ -124,6 +130,7 @@ class Player(pg.sprite.Sprite):
         for obj in hardcolls: 
             if obj in self.gm.onscreen:
                 self.bounce(obj)
+
 
     def bounce(self, obj):
         # find closest point on collision object
@@ -172,12 +179,14 @@ class Player(pg.sprite.Sprite):
 # thruster animation attached to main player
 # grows, shrinks and collides - but doesnt't accelerate shit
 class Thruster(pg.sprite.Sprite):
-    # constants for all classes
-    shrinkrate = -200
-    growthrate = 220
     length = 20.0  # could be height or width
     width = 10.0
+    max_length = 75
+    shrinkrate = -200
+    growthrate = 220
+    width_growth_ratio = 0.5  # times length growth rate
     damage_mod = 1
+
 
     def __init__(self, direction, game, eventmanager):
         pg.sprite.Sprite.__init__(self)
@@ -206,6 +215,7 @@ class Thruster(pg.sprite.Sprite):
         # bounding box
         self.rect = self.make_box()
 
+
     # run on every tick
     def update(self):
         self.scale(self.shrinkrate)
@@ -214,20 +224,25 @@ class Thruster(pg.sprite.Sprite):
         # make bounding box at new size
         self.rect = self.make_box()
 
+
     # handle events
     def notify(self, event):
         # grow when player thrusts
         if (isinstance(event, events.PlayerThrust)
-        and event.direction == self.side):
+            and event.direction == self.side
+            and self.length <= self.max_length):
             self.scale(self.growthrate)
+
 
     # return damage dealt per time unit
     def get_damage(self):
         return int(self.length * self.damage_mod)
 
+
     # extend or shorten the thruster
     def scale(self, amount):
         self.length += amount * self.gm.dt
+
 
     # make box considering player pos, thruster size, and side mounted
     def make_box(self):
