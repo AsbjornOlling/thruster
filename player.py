@@ -8,12 +8,17 @@ import events
 import animation as ani
 
 class Player(pg.sprite.Sprite):
-    # starting position on spawn, float precision
-    speedmod = 100
-    bounce_factor = -0.5  # must be between -1 and 0
-    brake_factor = -0.05  # small negative number
+    # sprite size
     width = 32
     height = 32
+
+    # movement constants
+    speedmod = 100
+    bounce_factor = -0.5  # must be between -1 and 0
+    brake_factor = -0.1  # small negative number
+    brake_minspeed = 2  # length of speedvector
+    maxfuel = 100.0
+
 
     def __init__(self, game):
         pg.sprite.Sprite.__init__(self)
@@ -32,6 +37,9 @@ class Player(pg.sprite.Sprite):
         self.allsprites = pg.sprite.Group()
         self.thrusters = pg.sprite.Group()
         self.brakeshots = pg.sprite.Group()
+
+        # start at full fuel
+        self.fuel = self.maxfuel
 
         # spawn at room center
         self.posx = game.currentroom.center[0] - self.width/2
@@ -94,8 +102,12 @@ class Player(pg.sprite.Sprite):
 
     # "brakeshot" - stops momentum, deals a lot of damage
     def brake(self):
-        self.speed *= self.brake_factor
-        self.brakeshots.add(BrakeShot(self.speed, self.gm))
+        if self.speed.length() > self.brake_minspeed:
+            newspeed = self.brake_factor * self.speed
+            self.speed = newspeed
+            self.brakeshots.add(BrakeShot(self.speed, self.gm))
+        else:
+            print("Going too slow to brake")
 
     # adds a vector to the speed vector
     def accelerate(self, change):
@@ -275,11 +287,11 @@ class BrakeShot(pg.sprite.Sprite):
 
         # load animation
         self.animation = ani.Animation("brakeblast.png", 64)
-        self.image = self.animation.get_frame_no(0)
+        self.image = self.animation.get_frame_no(0).convert_alpha()
 
         # find center for new rect by rotating a pre-defined center
         # TODO generalize this magic constant to enable scaling
-        center_rightx =  self.player.rect.centerx + 28
+        center_rightx =  self.player.rect.centerx + 50
         center_righty = self.player.rect.centery
         center_right = (center_rightx, center_righty)
         newcenter = utils.rotate_point(self.player.rect.center, center_right, -1 * self.angle_r)

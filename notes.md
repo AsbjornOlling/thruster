@@ -123,6 +123,13 @@ Controller: on_event()
 	- basic tools to make rooms with enemies in them
 	- velocity bomb
 
+Jan 14:
+	
+	* Scaling velocity bomb sprite
+	* Fuel consumption and death mechanic
+	* Basic enemy
+
+
 ### Dec. 18
 
 **Goals:**
@@ -199,3 +206,15 @@ Controller: on_event()
 	* Added destructible gates to room walls
 	* Detect leaving the room
 	* Started notes about room generation
+
+
+### Jan 6.
+
+**Goals:**
+
+	* Fuel comsumption bar
+	* Max length for player truster
+	* Width scaling for player thruster
+
+
+**Accomplished:**
