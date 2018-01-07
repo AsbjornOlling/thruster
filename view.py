@@ -11,11 +11,13 @@ class Viewer():
     # colors
     # main game screen
     color_bg = colors.get_rgb(colors.wb7)
-    color_wall = colors.get_rgb(colors.wb6)    # gray
-    color_flame = colors.get_rgb(colors.pp3)
+    color_flame = colors.get_rgb(colors.by8)
+    color_wall = colors.get_rgb(colors.wb2)    # gray
+    color_damage = colors.get_rgb(colors.pp4)
     # hud ui
-    color_margin = colors.get_rgb(colors.by3)
-    color_dial = colors.get_rgb(colors.gb4)
+    color_margin = colors.get_rgb(colors.gb5)
+    color_dial = colors.get_rgb(colors.gb10)
+    color_fuel = colors.get_rgb(colors.pp3)
 
     def __init__(self, screensize, game, eventmanager):
         self.screenw, self.screenh = self.screensize = screensize
@@ -36,6 +38,9 @@ class Viewer():
 
         # bool to control only updating margins once
         self.margins_updated = False
+
+        # fuelmeter
+        self.ani_fuel = ani.Animation("fuelmeter-316.png", 316)
 
 
     # run on every tick
@@ -90,7 +95,7 @@ class Viewer():
             if hasattr(wall, "health"):
                 # make totally red surface
                 reds = pg.Surface(wall.rect.size)
-                reds.fill((255, 0, 0))
+                reds.fill((255,0,0))
                 # transparancy based on health
                 reds.set_alpha(256 - wall.health*1.5)
                 # draw on screen
@@ -107,50 +112,48 @@ class Viewer():
     # bits to the left and right of room-section
     def draw_margins(self):
         # left cover
-        margin_L = pg.Rect((0, 0), 
+        self.margin_L = pg.Rect((0, 0), 
                            (self.gm.marginw, self.screenh))
-        pg.draw.rect(self.screen, self.color_margin, margin_L)
+        pg.draw.rect(self.screen, self.color_margin, self.margin_L)
 
         # right cover
-        margin_R = pg.Rect((self.gm.currentroom.right, 0), 
+        self.margin_R = pg.Rect((self.gm.currentroom.right, 0), 
                            (self.gm.marginw, self.screenh))
-        pg.draw.rect(self.screen, self.color_margin, margin_R)
+        pg.draw.rect(self.screen, self.color_margin, self.margin_R)
 
         # add margins to update list
         # only on first run
         if not self.margins_updated:
-            self.update_rects.append(margin_R)
-            self.update_rects_next.append(margin_R)
-            self.update_rects.append(margin_L)
-            self.update_rects_next.append(margin_L)
+            self.update_rects.append(self.margin_R)
+            self.update_rects_next.append(self.margin_R)
+            self.update_rects.append(self.margin_L)
+            self.update_rects_next.append(self.margin_L)
             self.margins_updated = True
 
         # draw fuel bar on left margin
-        self.draw_fuelbar()
+        self.draw_fuelmeter()
         # speed information on right margin
         self.draw_velocitypanel()
 
 
     # draw red bar on left panel, length based on player fuel
-    def draw_fuelbar(self):
-        bar_height = self.screenh * 0.5
-        bar_width = 40
-        fuel_height = self.gm.p.fuel / self.gm.p.maxfuel * bar_height
+    def draw_fuelmeter(self):
+        # get the approriate frame
+        frameno = 15 - int(((self.ani_fuel.noofframes - 1) / self.gm.p.maxfuel) 
+                            * self.gm.p.fuel)
 
-        fuelposx = self.gm.marginw/2 - bar_width/2
-        fuelposy = (self.screenh - bar_height)/2 + (bar_height - fuel_height)
+        frame = self.ani_fuel.get_frame_no(frameno)
 
-        # make rect and draw bar
-        fuel = pg.Rect((fuelposx, fuelposy), (bar_width, fuel_height))
-        pg.draw.rect(self.screen, self.color_flame, fuel)
+        # place at bottom of screen
+        padding = 20
+        posx = 0
+        posy = self.screenh/2 
+        self.screen.blit(frame, (posx, posy))
+        self.update_rects.append(self.margin_L)
+        print(frameno)
 
-        barposx = fuelposx
-        barposy = (self.screenh - bar_height)/2 
 
-        # add the entire fuelbar to update rects
-        bar = pg.Rect((barposx, barposy), (bar_width, bar_height))
-        self.update_rects.append(bar)
-        self.update_rects_next.append(bar)
+
 
 
     def draw_velocitypanel(self):

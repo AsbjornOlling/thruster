@@ -13,7 +13,7 @@ class Animation:
         self.height = self.spritesheet.get_height()
         self.offset = offset
         self.framesize = (self.width, self.offset)
-        self.noofframes = self.height / self.offset
+        self.noofframes = (self.height / self.offset)
 
         # reset frame counter
         self.reset()
@@ -27,7 +27,7 @@ class Animation:
         self.frame = self.get_frame_no(self.frameno)
         self.frameno += 1
 
-        if self.frameno > self.noofframes - 1:
+        if self.frameno >= self.noofframes:
             self.reset()
 
         return self.frame

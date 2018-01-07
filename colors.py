@@ -1,15 +1,4 @@
 # colors
-
-# greyscale
-# from white to black
-
-
-
-
-
-
-
-
 def get_rgb(value):
     value = value.lstrip('#')
     lv = len(value)
