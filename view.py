@@ -36,8 +36,8 @@ class Viewer():
         self.update_rects = []
         self.update_rects_next = []
 
-        # bool to control only updating margins once
-        self.margins_updated = False
+        # bool to control first full-screen update
+        self.first_update = True
 
         # fuelmeter
         self.ani_fuel = ani.Animation("fuelmeter-316.png", 316)
@@ -57,7 +57,9 @@ class Viewer():
         # update changed rects only
         pg.display.update(self.update_rects)
         # update all all
-        pg.display.update()
+        if self.first_update:
+            pg.display.update()
+            self.first_update = False
 
         # reset lists
         self.update_rects = []
@@ -123,12 +125,12 @@ class Viewer():
 
         # add margins to update list
         # only on first run
-        if not self.margins_updated:
-            self.update_rects.append(self.margin_R)
-            self.update_rects_next.append(self.margin_R)
-            self.update_rects.append(self.margin_L)
-            self.update_rects_next.append(self.margin_L)
-            self.margins_updated = True
+        #if not self.margins_updated:
+        #    self.update_rects.append(self.margin_R)
+        #    self.update_rects_next.append(self.margin_R)
+        #    self.update_rects.append(self.margin_L)
+        #    self.update_rects_next.append(self.margin_L)
+        #    self.margins_updated = True
 
         # draw fuel bar on left margin
         self.draw_fuelmeter()
@@ -150,10 +152,6 @@ class Viewer():
         posy = self.screenh/2 
         self.screen.blit(frame, (posx, posy))
         self.update_rects.append(self.margin_L)
-        print(frameno)
-
-
-
 
 
     def draw_velocitypanel(self):
