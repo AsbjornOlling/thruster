@@ -45,9 +45,11 @@ if __name__ == "__main__":
 
     # controller
     kb = controls.KeyboardController(evm)
-    
+
     # load objects and start game
     gm.start()
+
+    
 
     # main loop
     while True:

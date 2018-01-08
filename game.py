@@ -4,6 +4,7 @@ import random as r
 import math
 
 # other game files
+import animation as ani
 import player
 import events
 
@@ -37,12 +38,15 @@ class Game:
                          self.screenh)
         self.roomw, self.roomh = self.roomsize
 
+
     def update(self):
         self.allsprites.update()
+
 
     def notify(self, event):
         if isinstance(event, events.RoomExit):
             self.move_rooms(event.direction)
+
 
     def tick(self):
         # tick at 60fps
@@ -159,10 +163,11 @@ class Room:
         blockmaxx = self.right - self.wallthickness - blocksize
         blockminy = self.wallthickness
         blockmaxy = self.gm.screenh - self.wallthickness - blocksize
-        self.wall_c = WallDestructible((r.randrange(blockminx, blockmaxx),
+        self.wall_c = Crate((r.randrange(blockminx, blockmaxx),
                                        r.randrange(blockminy, blockmaxy)), 
                                        (blocksize, blocksize),
                                        self, self.gm)
+
 
     def make_outerwalls(self, opengates):
         # west wall
@@ -268,3 +273,30 @@ class WallDestructible(Wall):
             print("Wall DEATH")
             self.evm.notify(events.ObjDeath(self.rect))
             self.kill()
+
+
+# a crate w/ crate sprite
+class Crate(WallDestructible):
+    width = 32
+    height = 64
+
+    def __init__(self, pos, size, room, game):
+        # run parent constructor
+        super(Crate, self).__init__(pos, size, room, game)
+
+        # load crate animation (one frame)
+        self.animation = ani.Animation("crate-32x64.png", 64)
+        self.img = self.animation.get_frame_no(0)
+        self.rect = self.img.get_rect()
+
+        # set random position in room
+        self.set_randompos()
+
+
+    # set a random position in room
+    def set_randompos(self):
+        xmin = self.gm.currentroom.marginw + self.gm.currentroom.wallthickness
+        xmax = self.gm.screenw - self.gm.marginw - self.gm.currentroom.wallthickness
+        self.posx = r.randrange(xmin, xmax)
+        self.posy = 200
+
