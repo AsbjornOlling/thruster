@@ -156,17 +156,21 @@ class Room:
         self.make_outerwalls(opengates)
         self.make_randomblock()
 
+
     def make_randomblock(self):
-        # random destructible block
-        blocksize = 50
+        # params for pos
         blockminx = self.left + self.wallthickness
-        blockmaxx = self.right - self.wallthickness - blocksize
+        blockmaxx = self.right - self.wallthickness - Crate.width
         blockminy = self.wallthickness
-        blockmaxy = self.gm.screenh - self.wallthickness - blocksize
-        self.wall_c = Crate((r.randrange(blockminx, blockmaxx),
-                                       r.randrange(blockminy, blockmaxy)), 
-                                       (blocksize, blocksize),
-                                       self, self.gm)
+        blockmaxy = self.gm.screenh - self.wallthickness - Crate.height
+
+        # generate random position
+        blockx = r.randrange(blockminx, blockmaxx)
+        blocky = r.randrange(blockminy, blockmaxy)
+
+        # make the crate and add it to the room
+        self.wall_c = Crate((blockx, blocky), self, self.gm)
+        self.allsprites.add(self.wall_c)
 
 
     def make_outerwalls(self, opengates):
@@ -243,11 +247,15 @@ class Wall(pg.sprite.Sprite):
         game.allsprites.add(self)
         game.onscreen.add(self)
         game.hardcollide.add(self)
+        # room sprite groups
         room.allsprites.add(self)
         room.walls.add(self)
         
         # empty image
         self.image = pg.image.load("0.png")
+
+        # get position
+        self.posx, self.posy = pos
 
         # rect using constructor args
         self.rect = pg.Rect(pos, size)
@@ -277,26 +285,22 @@ class WallDestructible(Wall):
 
 # a crate w/ crate sprite
 class Crate(WallDestructible):
-    width = 32
-    height = 64
+    width, height = size = (32, 64)
 
-    def __init__(self, pos, size, room, game):
+    def __init__(self, pos, room, game):
         # run parent constructor
-        super(Crate, self).__init__(pos, size, room, game)
+        super(Crate, self).__init__(pos, self.size, room, game)
+
+        print("MAKING NEW CRATE @ "+ str(self.posx)+ "x" + str(self.posy))
+
+        # remove from walls group to avoid drawing over
+        room.walls.remove(self)
 
         # load crate animation (one frame)
         self.animation = ani.Animation("crate-32x64.png", 64)
-        self.img = self.animation.get_frame_no(0)
-        self.rect = self.img.get_rect()
+        self.image = self.animation.get_frame_no(0).convert_alpha()
+        self.rect = self.image.get_rect()
 
-        # set random position in room
-        self.set_randompos()
-
-
-    # set a random position in room
-    def set_randompos(self):
-        xmin = self.gm.currentroom.marginw + self.gm.currentroom.wallthickness
-        xmax = self.gm.screenw - self.gm.marginw - self.gm.currentroom.wallthickness
-        self.posx = r.randrange(xmin, xmax)
-        self.posy = 200
-
+        # update rect position
+        self.rect.x = self.posx
+        self.rect.y = self.posy

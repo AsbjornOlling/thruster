@@ -43,12 +43,11 @@ if __name__ == "__main__":
     # viewer
     vw = view.Viewer(app.RES, gm, evm)
 
-    # controller
-    kb = controls.KeyboardController(evm)
-
-    # load objects and start game
+    # create room, player
     gm.start()
 
+    # controller
+    kb = controls.KeyboardController(evm)
     
 
     # main loop
