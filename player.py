@@ -310,7 +310,6 @@ class Thruster(pg.sprite.Sprite):
 class BrakeShot(pg.sprite.Sprite):
     size_mod = -750
     damage_mod = 50001
-    displaytime = 0.2 
 
     def __init__(self, speedvector, game):
         pg.sprite.Sprite.__init__(self)
@@ -358,14 +357,13 @@ class BrakeShot(pg.sprite.Sprite):
 
     # run on every tick
     def update(self):
-        self.displaytime -= self.gm.dt
-
         # get frame from animation
         self.image = self.animation.step_forward()
         # rotate frame 
         self.image = pg.transform.rotate(self.image, self.angle_d)
 
-        if self.displaytime < 0:
+        # kill timer
+        if self.animation.frameno == self.animation.noofframes - 1:
             self.evm.notify(events.ObjDeath(self.rect))
             self.kill()
 
@@ -377,7 +375,7 @@ class BrakeShot(pg.sprite.Sprite):
     def get_damage(self):
         if not self.damage_dealt:
 
-            print("damaging")
+            print("BrakeShot damaging")
             print(self.vector.length() * self.damage_mod)
 
             self.damage_dealt = True
