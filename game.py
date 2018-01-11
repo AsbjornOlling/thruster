@@ -273,20 +273,17 @@ class WallDestructible(Wall):
         # take damage
         collisions = pg.sprite.spritecollide(self, self.gm.pvedamage, 0)
         for item in collisions:
-            # subtract health
-            self.health -= item.get_damage() * self.gm.dt
-            print("TAKING DAMAGE")
-
-        # kill if no health
-        if self.health < 1:
-            print("Wall DEATH")
-            self.evm.notify(events.ObjDeath(self.rect))
-            self.kill()
+            damage = item.get_damage()
+            self.takedamage(damage * self.gm.dt)
 
 
     # take damage 
     def takedamage(self, amount):
-        pass
+        self.health -= amount
+        # kill sprite if no health
+        if self.health < 1:
+            self.evm.notify(events.ObjDeath(self.rect))
+            self.kill()
 
 
 # a crate w/ crate sprite
@@ -312,8 +309,9 @@ class Crate(WallDestructible):
         self.rect.x = self.posx
         self.rect.y = self.posy
 
-        # set max health
+        # LOOK ALIVE
         self.health = self.maxhealth
+        self.dead = False
 
 
     # to run on every tick
@@ -321,11 +319,16 @@ class Crate(WallDestructible):
         # detect collisions, take damage
         super(Crate, self).update()
 
-        # TODO FIX ME
         # find frame belonging to health level
-        frameno = (self.animation.noofframes - 1 
-                  - int(((self.animation.noofframes - 1) / self.maxhealth) * self.health))
-        self.image = self.animation.get_frame_no(frameno)
-        print("FRAMENO"+str(frameno))
+        if not self.dead:
+            frameno = (self.animation.noofframes - 1 
+                      - int(((self.animation.noofframes - 1) / self.maxhealth) * self.health))
+            self.image = self.animation.get_frame_no(frameno)
 
 
+    def takedamage(self, amount):
+        self.health -= amount
+        # kill sprite if no health
+        if self.health < 1:
+            self.dead = True
+            self.image = self.animation.get_frame_no(self.animation.noofframes - 1)
