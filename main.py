@@ -1,7 +1,17 @@
-# Thruster game WIP
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+""" THRUSTER (working title)
+is a rogue-lite top-down physics-based sci-fi game.
+The objective is to survive as long as possible,
+without running out of fuel or crashing your ship.
+
+Written by Asbjørn Olling, winter 2017/2018.
+"""
+
+# third party imports
 import pygame as pg
 
-# game files
+# game modules
 import events
 import game
 import view
@@ -9,7 +19,10 @@ import controls
 
 
 class App:
-    # design resolution
+    """Main class.
+
+    Contains the main game objects and runs the program.
+    """
     WIDTH, HEIGHT = RES = (1280, 720)
 
     def __init__(self):
@@ -23,6 +36,11 @@ class App:
         self.kb = controls.KeyboardController(self.evm)     # handle keyboard
 
     def run(self):
+        """Start game and run main loop.
+
+        This method is never completed.
+        """
+
         # create room, player
         self.gm.start()
         while True:
@@ -31,13 +49,22 @@ class App:
             self.vw.update()  # draw for the player
             self.gm.tick()    # wait 1/60th second
 
-    # handle events received
     def notify(self, event):
+        """Receive events from eventmanager.
+
+        Receives all events, only acts on some.
+
+        The App object only acts on Quit events.
+        """
         if isinstance(event, events.Quit):
             self.cleanup()
 
     # run on exit
     def cleanup(self):
+        """Method to be run for application close.
+
+        At the moment, it just closes pygame then quit.
+        """
         pg.quit()
         quit()
 
