@@ -1,4 +1,4 @@
-# Thruster game WIP 
+# Thruster game WIP
 import pygame as pg
 
 # game files
@@ -6,6 +6,7 @@ import events
 import game
 import view
 import controls
+
 
 class App:
     # design resolution
@@ -15,12 +16,11 @@ class App:
         pg.init()
         pg.display.set_caption("THRUSTER")
 
-        self.evm = events.EventManager()                    # communication between objects
+        self.evm = events.EventManager()        # communication between objects
         self.evm.add_listener(self)
         self.gm = game.Game(self.RES, self.evm)             # game model
         self.vw = view.Viewer(self.RES, self.gm, self.evm)  # visuals
-        self.kb = controls.KeyboardController(self.evm)     # handle keyboard events
-
+        self.kb = controls.KeyboardController(self.evm)     # handle keyboard
 
     def run(self):
         # create room, player
@@ -31,12 +31,10 @@ class App:
             self.vw.update()  # draw for the player
             self.gm.tick()    # wait 1/60th second
 
-
     # handle events received
     def notify(self, event):
         if isinstance(event, events.Quit):
             self.cleanup()
-
 
     # run on exit
     def cleanup(self):
