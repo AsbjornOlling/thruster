@@ -41,6 +41,4 @@ class Animation:
         frame.blit(self.spritesheet, (0, 0), area)
 
         frame.blit(self.spritesheet, (0, no * -1 * self.offset), area)
-        # print("FRAME: "+str(no))
-        # print("COORD: "+str(area.y))
         return frame
