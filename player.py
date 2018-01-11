@@ -309,7 +309,7 @@ class Thruster(pg.sprite.Sprite):
 # sprite for the velocity-cancelling brakeshot
 class BrakeShot(pg.sprite.Sprite):
     size_mod = -750
-    damage_mod = 50001
+    damage_mod = 1000
 
     def __init__(self, speedvector, game):
         pg.sprite.Sprite.__init__(self)
@@ -355,6 +355,7 @@ class BrakeShot(pg.sprite.Sprite):
         # bool to ensure only dealing damage once
         self.damage_dealt = False
 
+
     # run on every tick
     def update(self):
         # get frame from animation
@@ -367,18 +368,12 @@ class BrakeShot(pg.sprite.Sprite):
             self.evm.notify(events.ObjDeath(self.rect))
             self.kill()
 
+
     # deal with eventmanager events
     def notify(self, event):
         pass
 
+
     # return damage - only once
     def get_damage(self):
-        if not self.damage_dealt:
-
-            print("BrakeShot damaging")
-            print(self.vector.length() * self.damage_mod)
-
-            self.damage_dealt = True
-            return self.vector.length() * self.damage_mod
-        else:
-            return 0 
+        return self.vector.length() * self.damage_mod
