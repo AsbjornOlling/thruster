@@ -234,7 +234,7 @@ class Room:
             self.gm.offscreen.remove(sprite)
             self.gm.onscreen.add(sprite)
 
-# "dumb" block, for the player to bounce off
+# "dumb" block, just for the player to bounce off
 class Wall(pg.sprite.Sprite):
     def __init__(self, pos, size, room, game):
         pg.sprite.Sprite.__init__(self)
@@ -275,6 +275,7 @@ class WallDestructible(Wall):
         for item in collisions:
             # subtract health
             self.health -= item.get_damage() * self.gm.dt
+            print("TAKING DAMAGE")
 
         # kill if no health
         if self.health < 1:
@@ -286,6 +287,7 @@ class WallDestructible(Wall):
 # a crate w/ crate sprite
 class Crate(WallDestructible):
     width, height = size = (32, 64)
+    maxhealth = 100
 
     def __init__(self, pos, room, game):
         # run parent constructor
@@ -293,14 +295,31 @@ class Crate(WallDestructible):
 
         print("MAKING NEW CRATE @ "+ str(self.posx)+ "x" + str(self.posy))
 
-        # remove from walls group to avoid drawing over
+        # avoid drawing over with wall graphics
         room.walls.remove(self)
 
         # load crate animation (one frame)
-        self.animation = ani.Animation("crate-32x64.png", 64)
-        self.image = self.animation.get_frame_no(0).convert_alpha()
+        self.animation = ani.Animation("crate-32.png", 64)
+        self.image = self.animation.get_frame_no(0)
         self.rect = self.image.get_rect()
 
         # update rect position
         self.rect.x = self.posx
         self.rect.y = self.posy
+
+        # set max health
+        self.health = self.maxhealth
+
+
+    # to run on every tick
+    def update(self):
+        # detect collisions, take damage
+        super(Crate, self).update()
+
+        # TODO FIX ME
+        # find frame belonging to health level
+        #frameno = (self.maxhealth
+        #        (self.animation.noofframes - 1)) * self.health
+        #self.image = self.animation.get_frame_no(frameno)
+
+
