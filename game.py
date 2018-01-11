@@ -284,6 +284,11 @@ class WallDestructible(Wall):
             self.kill()
 
 
+    # take damage 
+    def takedamage(self, amount):
+        pass
+
+
 # a crate w/ crate sprite
 class Crate(WallDestructible):
     width, height = size = (32, 64)
@@ -318,8 +323,9 @@ class Crate(WallDestructible):
 
         # TODO FIX ME
         # find frame belonging to health level
-        #frameno = (self.maxhealth
-        #        (self.animation.noofframes - 1)) * self.health
-        #self.image = self.animation.get_frame_no(frameno)
+        frameno = (self.animation.noofframes - 1 
+                  - int(((self.animation.noofframes - 1) / self.maxhealth) * self.health))
+        self.image = self.animation.get_frame_no(frameno)
+        print("FRAMENO"+str(frameno))
 
 
