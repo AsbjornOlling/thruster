@@ -40,7 +40,6 @@ class App:
 
         This method is never completed.
         """
-
         # create room, player
         self.gm.start()
         while True:
