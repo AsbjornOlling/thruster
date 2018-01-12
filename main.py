@@ -29,9 +29,9 @@ class App:
         pg.init()
         pg.display.set_caption("THRUSTER")
 
-        self.evm = events.EventManager()        # communication between objects
+        self.evm = events.EventManager()    # communication between objects
         self.evm.add_listener(self)
-        self.gm = game.Game(self.RES, self.evm)             # game model
+        self.gm = game.Game(self)           # game model
         self.vw = view.Viewer(self.RES, self.gm, self.evm)  # visuals
         self.kb = controls.KeyboardController(self.evm)     # handle keyboard
 
