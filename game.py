@@ -20,8 +20,8 @@ class Game:
     visited rooms.
     """
     MARGINW = 128  # width of HUD-panels
-    WIDTH = None  # class field to allow reading from Room class field
-    HEIGHT = None
+    WIDTH = 0  # class field to allow reading from Room class field
+    HEIGHT = 0
 
     def __init__(self, parent):
         self.parent = parent
@@ -137,51 +137,51 @@ class Game:
 
 
 class Room:
+    """A room contains groups of its contents, and methods to populate itself.
+    """
+    # concering room contents
     WALLTHICKNESS = 20
     GATELENGTH = 200
-    WIDTH = Game.WIDTH
+    # room size
+    WIDTH = Game.WIDTH - Game.MARGINW * 2
     HEIGHT = Game.HEIGHT
+    SIZE = WIDTH, HEIGHT
+    # often used positions in room
+    LEFT = Game.MARGINW
+    RIGHT = WIDTH + Game.MARGINW
+    CENTER = (LEFT + WIDTH/2, HEIGHT/2)
 
     def __init__(self, game, coord):
-        # game model
         self.gm = game
-
-        # TODO do this outside constructor
-        # set room size
-        self.SIZE = (self.gm.WIDTH - self.gm.MARGINW * 2, self.gm.HEIGHT)
-        self.WIDTH, self.HEIGHT = self.SIZE
-
-        # set coord, and add to grid
-        self.coord = coord
-        game.visitedrooms[coord[0]][coord[1]] = self
-
-        # room dimension vars
-        self.width, self.height = game.roomsize
-        self.left = game.MARGINW
-        self.right = self.left + self.width
-        self.center = (self.left + self.width/2, self.height/2)
 
         # sprite groups
         self.allsprites = pg.sprite.Group()
         self.walls = pg.sprite.Group()
 
-        # make gates to previously discovered rooms open
+        # add to world map grid
+        self.coord = coord
+        game.visitedrooms[coord[0]][coord[1]] = self
+
+        # check neighbor rooms and open gates to discovered rooms
         opengates = []
-        neighbor_shift = [(-1, 0, "W"), (1, 0, "E"), 
+        neighbor_shift = [(-1, 0, "W"), (1, 0, "E"),
                           (0, -1, "N"), (0, 1, "S")]
         for relpos in neighbor_shift:
-            # if neighbor room exists, make that gate open
-            if self.gm.visitedrooms[self.coord[0] + relpos[0]]\
-                                   [self.coord[1] + relpos[1]] != None:
+            nx = self.coord[0] + relpos[0]
+            ny = self.coord[1] + relpos[1]
+            if self.gm.visitedrooms[nx][ny] is not None:
                 opengates.append(relpos[2])
                 print("OPEN GATE:" + str(relpos[2]))
 
-        # outer walls w/ gates
+        # populate room with gates and crates
         self.make_outerwalls(opengates)
-        self.make_randomblock()
+        self.make_random_crate()
 
+    def make_random_crate(self):
+        """Make crate at random position.
 
-    def make_randomblock(self):
+        Get random coords, construct box, and add to group.
+        """
         # params for pos
         blockminx = self.left + self.WALLTHICKNESS
         blockmaxx = self.right - self.WALLTHICKNESS - Crate.width
