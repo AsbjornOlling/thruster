@@ -23,7 +23,7 @@ class App:
 
     Contains the main game objects and runs the program.
     """
-    WIDTH, HEIGHT = RES = (1280, 720)
+    WIDTH, HEIGHT = SIZE = (1280, 720)
 
     def __init__(self):
         pg.init()
@@ -32,7 +32,7 @@ class App:
         self.evm = events.EventManager()    # communication between objects
         self.evm.add_listener(self)
         self.gm = game.Game(self)           # game model
-        self.vw = view.Viewer(self.RES, self.gm, self.evm)  # visuals
+        self.vw = view.Viewer(self.SIZE, self.gm, self.evm)  # visuals
         self.kb = controls.KeyboardController(self.evm)     # handle keyboard
 
     def run(self):

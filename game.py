@@ -20,8 +20,13 @@ class Game:
     visited rooms.
     """
     MARGINW = 128  # width of HUD-panels
+<<<<<<< HEAD
     WIDTH = 0  # class field to allow reading from Room class field
     HEIGHT = 0
+=======
+    WIDTH = None  # class field to allow reading from Room class field
+    HEIGHT = None
+>>>>>>> 62ef1756c0c048faeda78aac2fdffd7928f58517
 
     def __init__(self, parent):
         self.parent = parent
