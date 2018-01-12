@@ -7,6 +7,7 @@ import random as r
 
 import pygame as pg
 
+import main
 import animation as ani
 import player
 import events
@@ -20,13 +21,8 @@ class Game:
     visited rooms.
     """
     MARGINW = 128  # width of HUD-panels
-<<<<<<< HEAD
-    WIDTH = 0  # class field to allow reading from Room class field
-    HEIGHT = 0
-=======
-    WIDTH = None  # class field to allow reading from Room class field
-    HEIGHT = None
->>>>>>> 62ef1756c0c048faeda78aac2fdffd7928f58517
+    WIDTH = main.App.WIDTH
+    HEIGHT = main.App.HEIGHT
 
     def __init__(self, parent):
         self.parent = parent
@@ -38,7 +34,7 @@ class Game:
         self.evm.add_listener(self)
 
         self.clock = pg.time.Clock()
-        self.clock.tick()
+        self.tick()
 
         # sprite groups
         self.allsprites = pg.sprite.Group()     # all sprites in game
@@ -100,25 +96,25 @@ class Game:
             targetcoord = (self.currentroom.coord[0] - 1,
                            self.currentroom.coord[1])
             # entrypoint at E gate
-            newplayerpos = (self.currentroom.right - self.p.width/2,
-                            self.currentroom.center[1] - self.p.height/2)
+            newplayerpos = (self.currentroom.RIGHT - self.p.width/2,
+                            self.currentroom.CENTER[1] - self.p.height/2)
         elif direction == "E":
             targetcoord = (self.currentroom.coord[0] + 1,
                            self.currentroom.coord[1])
             # entrypoint at W gate
-            newplayerpos = (self.currentroom.left + self.p.width/2,
-                            self.currentroom.center[1] - self.p.height/2)
+            newplayerpos = (self.currentroom.LEFT + self.p.width/2,
+                            self.currentroom.CENTER[1] - self.p.height/2)
         elif direction == "N":
             targetcoord = (self.currentroom.coord[0],
                            self.currentroom.coord[1] - 1)
             # entrypoint at S gate
-            newplayerpos = (self.currentroom.center[0] - self.p.width/2,
+            newplayerpos = (self.currentroom.CENTER[0] - self.p.width/2,
                             self.HEIGHT - self.p.height/2)
         elif direction == "S":
             targetcoord = (self.currentroom.coord[0],
                            self.currentroom.coord[1] + 1)
             # entrypoint at N gate
-            newplayerpos = (self.currentroom.center[0] - self.p.width/2,
+            newplayerpos = (self.currentroom.CENTER[0] - self.p.width/2,
                             0 - self.p.height/2)
 
         # check if there's already a room
@@ -188,10 +184,10 @@ class Room:
         Get random coords, construct box, and add to group.
         """
         # params for pos
-        blockminx = self.left + self.WALLTHICKNESS
-        blockmaxx = self.right - self.WALLTHICKNESS - Crate.width
+        blockminx = self.LEFT + self.WALLTHICKNESS
+        blockmaxx = self.RIGHT - self.WALLTHICKNESS - Crate.width
         blockminy = self.WALLTHICKNESS
-        blockmaxy = self.gm.screenh - self.WALLTHICKNESS - Crate.height
+        blockmaxy = self.gm.HEIGHT - self.WALLTHICKNESS - Crate.height
 
         # generate random position
         blockx = r.randrange(blockminx, blockmaxx)
@@ -204,51 +200,51 @@ class Room:
 
     def make_outerwalls(self, opengates):
         # west wall
-        nongateh = (self.height - self.GATELENGTH)/2
-        wall_wtop = Wall((self.left, 0), 
+        nongateh = (self.HEIGHT - self.GATELENGTH)/2
+        wall_wtop = Wall((self.LEFT, 0), 
                          (self.WALLTHICKNESS, nongateh), 
                          self, self.gm)
-        wall_wbottom = Wall((self.left, self.GATELENGTH + nongateh),
+        wall_wbottom = Wall((self.LEFT, self.GATELENGTH + nongateh),
                             (self.WALLTHICKNESS, nongateh),
                             self, self.gm)
         # east wall
-        wall_etop = Wall((self.right - self.WALLTHICKNESS, 0), 
+        wall_etop = Wall((self.RIGHT - self.WALLTHICKNESS, 0), 
                          (self.WALLTHICKNESS, nongateh), 
                          self, self.gm)
-        wall_ebottom = Wall((self.right - self.WALLTHICKNESS, self.GATELENGTH + nongateh),
+        wall_ebottom = Wall((self.RIGHT - self.WALLTHICKNESS, self.GATELENGTH + nongateh),
                             (self.WALLTHICKNESS, nongateh),
                             self, self.gm)
         # north wall
-        nongatew = (self.width - self.GATELENGTH)/2
-        wall_nleft = Wall((self.left, 0), 
+        nongatew = (self.WIDTH - self.GATELENGTH)/2
+        wall_nleft = Wall((self.LEFT, 0), 
                          (nongatew, self.WALLTHICKNESS),
                          self, self.gm)
-        wall_nright = Wall((self.right - nongatew, 0), 
+        wall_nright = Wall((self.RIGHT - nongatew, 0), 
                             (nongatew, self.WALLTHICKNESS),
                             self, self.gm)
         # south wall
-        wall_sleft = Wall((self.left, self.height - self.WALLTHICKNESS), 
+        wall_sleft = Wall((self.LEFT, self.HEIGHT - self.WALLTHICKNESS), 
                          (nongatew, self.WALLTHICKNESS),
                          self, self.gm)
-        wall_sright = Wall((self.right - nongatew, self.height - self.WALLTHICKNESS), 
+        wall_sright = Wall((self.RIGHT - nongatew, self.HEIGHT - self.WALLTHICKNESS), 
                          (nongatew, self.WALLTHICKNESS),
                          self, self.gm)
 
         # gates
         if "W" not in opengates:
-            wall_wgate = WallDestructible((self.left, nongateh), 
+            wall_wgate = WallDestructible((self.LEFT, nongateh), 
                                           (self.WALLTHICKNESS, self.GATELENGTH), 
                                           self, self.gm)
         if "E" not in opengates:
-            wall_egate = WallDestructible((self.right - self.WALLTHICKNESS, nongateh), 
+            wall_egate = WallDestructible((self.RIGHT - self.WALLTHICKNESS, nongateh), 
                                           (self.WALLTHICKNESS, self.GATELENGTH), 
                                           self, self.gm)
         if "N" not in opengates:
-            wall_ngate = WallDestructible((self.left + nongatew, 0), 
+            wall_ngate = WallDestructible((self.LEFT + nongatew, 0), 
                                           (self.GATELENGTH, self.WALLTHICKNESS),
                                           self, self.gm)
         if "S" not in opengates:
-            wall_sgate = WallDestructible((self.left + nongatew, self.height - self.WALLTHICKNESS), 
+            wall_sgate = WallDestructible((self.LEFT + nongatew, self.HEIGHT - self.WALLTHICKNESS), 
                                           (self.GATELENGTH, self.WALLTHICKNESS),
                                           self, self.gm)
 
@@ -318,13 +314,13 @@ class WallDestructible(Wall):
 # a crate w/ crate sprite
 class Crate(WallDestructible):
     width, height = size = (32, 64)
-    maxhealth = 100
+    maxhealth = 100.0
 
     def __init__(self, pos, room, game):
         # run parent constructor
         super(Crate, self).__init__(pos, self.size, room, game)
 
-        print("MAKING NEW CRATE @ "+ str(self.posx)+ "x" + str(self.posy))
+        print("MAKING NEW CRATE @ " + str(self.posx) + "x" + str(self.posy))
 
         # avoid drawing over with wall graphics
         room.walls.remove(self)
@@ -342,7 +338,6 @@ class Crate(WallDestructible):
         self.health = self.maxhealth
         self.dead = False
 
-
     # to run on every tick
     def update(self):
         # detect collisions, take damage
@@ -350,14 +345,18 @@ class Crate(WallDestructible):
 
         # find frame belonging to health level
         if not self.dead:
-            frameno = (self.animation.noofframes - 1 
-                      - int(((self.animation.noofframes - 1) / self.maxhealth) * self.health))
-            self.image = self.animation.get_frame_no(frameno)
+            frameno = 22 - int((self.animation.noofframes - 1)
+                               / self.maxhealth
+                               * self.health)
 
+            print("frameno" + str(frameno))
+            print("healph" + str(self.health))
+            self.image = self.animation.get_frame_no(frameno)
 
     def takedamage(self, amount):
         self.health -= amount
         # kill sprite if no health
         if self.health < 1:
+            print("CRATE BROKEN")
             self.dead = True
             self.image = self.animation.get_frame_no(self.animation.noofframes - 1)

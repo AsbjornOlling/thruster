@@ -75,8 +75,8 @@ class Viewer():
             self.update_rects.append(event.rect)
         elif isinstance(event, events.ClearScreen):
             # update entire room
-            screenrect = pg.Rect((self.gm.marginw, 0),
-                                 (self.gm.currentroom.width,self.screenh))
+            screenrect = pg.Rect((self.gm.MARGINW, 0),
+                                 (self.gm.currentroom.WIDTH,self.screenh))
             self.update_rects.append(screenrect)
     
     # draw sprites and get update rects
@@ -105,7 +105,7 @@ class Viewer():
 
     # draw player's thrusters and get update rects
     def draw_thrusters(self):
-        for thruster in self.gm.player.sprite.thrusters:
+        for thruster in self.gm.p.thrusters:
             pg.draw.ellipse(self.screen, self.color_flame, thruster.rect)
             self.update_rects.append(thruster.rect)
             self.update_rects_next.append(thruster.rect)
@@ -115,12 +115,12 @@ class Viewer():
     def draw_margins(self):
         # left cover
         self.margin_L = pg.Rect((0, 0), 
-                           (self.gm.marginw, self.screenh))
+                           (self.gm.MARGINW, self.screenh))
         pg.draw.rect(self.screen, self.color_margin, self.margin_L)
 
         # right cover
-        self.margin_R = pg.Rect((self.gm.currentroom.right, 0), 
-                           (self.gm.marginw, self.screenh))
+        self.margin_R = pg.Rect((self.gm.currentroom.RIGHT, 0), 
+                           (self.gm.MARGINW, self.screenh))
         pg.draw.rect(self.screen, self.color_margin, self.margin_R)
 
         # add margins to update list
@@ -156,9 +156,9 @@ class Viewer():
 
     def draw_velocitypanel(self):
         # angle-meter
-        posx = (self.gm.marginw 
-                + self.gm.currentroom.width 
-                + self.gm.marginw//2)
+        posx = (self.gm.MARGINW 
+                + self.gm.currentroom.WIDTH 
+                + self.gm.MARGINW//2)
         posy = self.screenh//3
         radius = 48
         pg.draw.circle(self.screen, self.color_dial, (posx, posy), radius)
