@@ -1,139 +1,163 @@
-# container file for game states, rooms, etc.
-import pygame as pg
-import random as r
-import math
+"""Contains all game model classes except player-controlled ones.
 
-# other game files
+This means grid map, rooms, main game object, etc.
+"""
+
+import random as r
+
+import pygame as pg
+
 import animation as ani
 import player
 import events
 
-# debuggin
-import pdb
 
 class Game:
-    marginw = 128
+    """Game model class.
 
-    def __init__(self, screensize, eventmanager):
-        # eventmanager
-        self.evm = eventmanager
+    This class contains all sprites and other game-logic
+    essential objects, like the game clock or the grid of
+    visited rooms.
+    """
+    MARGINW = 128  # width of HUD-panels
+    WIDTH = None  # class field to allow reading from Room class field
+    HEIGHT = None
+
+    def __init__(self, parent):
+        self.parent = parent
+
+        # interactions with parent object
+        self.SIZE = parent.SIZE
+        self.WIDTH, self.HEIGHT = self.SIZE
+        self.evm = parent.evm
         self.evm.add_listener(self)
 
-        # sprite groups
-        self.allsprites = pg.sprite.Group()
-        self.onscreen = pg.sprite.RenderUpdates()
-        self.offscreen = pg.sprite.Group()
-        self.hardcollide = pg.sprite.Group()
-        self.pvedamage = pg.sprite.Group()
-        self.player = pg.sprite.GroupSingle()
-
-        # init time, initial tick (for dt)
         self.clock = pg.time.Clock()
-        self.tick()
+        self.clock.tick()
 
-        # screen size
-        self.screenw, self.screenh = self.screensize = screensize
-        # room size
-        self.roomsize = (self.screenw - 2*self.marginw,
-                         self.screenh)
-        self.roomw, self.roomh = self.roomsize
-
+        # sprite groups
+        self.allsprites = pg.sprite.Group()     # all sprites in game
+        self.onscreen = pg.sprite.RenderUpdates()  # visible sprites
+        self.offscreen = pg.sprite.Group()      # sprites in other rooms
+        self.hardcollide = pg.sprite.Group()    # player bounces off these
+        self.pvedamage = pg.sprite.Group()      # items take damage from these
 
     def update(self):
+        """Update all of the game model since last tick.
+
+        Just runs the update method on every sprite.
+        """
         self.allsprites.update()
 
-
     def notify(self, event):
+        """Receive events from eventmanager.
+
+        The Game object only cares about the player
+        going into a new room.
+        """
         if isinstance(event, events.RoomExit):
             self.move_rooms(event.direction)
 
-
     def tick(self):
-        # tick at 60fps
+        """Keeps time.
+
+        Keeps game updating at 60fps, and keeps track
+        of differences in time. To be run every updateloop.
+        """
         self.dt = self.clock.tick(60) / 1000.0
 
     def start(self):
+        """Create objects needed to begin.
+
+        Make a grid to contain map of rooms.
+        Then make starting room and player object.
+        """
         # make empty 512x512 grid
-        # grid uses same coord convention as screen
-        dimension = 512
+        # top left is (0,0)
+        gridsize = 512
         self.visitedrooms = []
-        for i in range(0, dimension):
-            column = [None] * dimension
+        for i in range(0, gridsize):
+            column = [None] * gridsize
             self.visitedrooms.append(column)
-
-        # make the spawn room
-        self.currentroom = Room((255, 255), self)
-
-        # make player
+        # make room and player
+        self.currentroom = Room(self, (255, 255))
         self.p = player.Player(self)
 
     def move_rooms(self, direction):
-        # get coord of the new room
-        # and coord of new player position
+        """Move curentroom offscreen and create new room.
+
+        direction: single-char signifying which gate
+        the player left through.
+        """
+
+        # find gridcoord of room and entrypoint coord for player
         if direction == "W":
-            targetcoord = (self.currentroom.coord[0] - 1, 
+            targetcoord = (self.currentroom.coord[0] - 1,
                            self.currentroom.coord[1])
             # entrypoint at E gate
             newplayerpos = (self.currentroom.right - self.p.width/2,
                             self.currentroom.center[1] - self.p.height/2)
         elif direction == "E":
-            targetcoord = (self.currentroom.coord[0] + 1, 
+            targetcoord = (self.currentroom.coord[0] + 1,
                            self.currentroom.coord[1])
             # entrypoint at W gate
             newplayerpos = (self.currentroom.left + self.p.width/2,
                             self.currentroom.center[1] - self.p.height/2)
         elif direction == "N":
-            targetcoord = (self.currentroom.coord[0], 
+            targetcoord = (self.currentroom.coord[0],
                            self.currentroom.coord[1] - 1)
             # entrypoint at S gate
             newplayerpos = (self.currentroom.center[0] - self.p.width/2,
-                            self.screenh - self.p.height/2)
+                            self.HEIGHT - self.p.height/2)
         elif direction == "S":
-            targetcoord = (self.currentroom.coord[0], 
+            targetcoord = (self.currentroom.coord[0],
                            self.currentroom.coord[1] + 1)
             # entrypoint at N gate
             newplayerpos = (self.currentroom.center[0] - self.p.width/2,
                             0 - self.p.height/2)
 
-        # check if new room already created
+        # check if there's already a room
         targetroom = self.visitedrooms[targetcoord[0]][targetcoord[1]]
-        if targetroom == None:
-            # if not, make a new room
-            newroom = Room(targetcoord, self, self.currentroom)
+        if targetroom is None:
+            # if not, make it
+            newroom = Room(self, targetcoord)
         else:
-            newroom = self.visitedrooms[targetcoord[0]][targetcoord[1]] 
+            newroom = self.visitedrooms[targetcoord[0]][targetcoord[1]]
 
-        # retire the old room
+        # out with the old, in with the new
         self.currentroom.move_offscreen()
+        self.currentroom = newroom
+        self.currentroom.move_onscreen()
 
         # move player
         self.p.posx, self.p.posy = newplayerpos
 
-        # activate the new room
-        self.currentroom = newroom
-        self.currentroom.move_onscreen()
-
-        # clear screen to render new room
+        # clear screen of old walls and gates
         self.evm.notify(events.ClearScreen())
 
 
-
-# contains a sprite group w/ walls
 class Room:
-    wallthickness = 20
-    gatelength = 200
+    WALLTHICKNESS = 20
+    GATELENGTH = 200
+    WIDTH = Game.WIDTH
+    HEIGHT = Game.HEIGHT
 
-    def __init__(self, coord, game, prev=None):
+    def __init__(self, game, coord):
         # game model
         self.gm = game
-        
+
+        # TODO do this outside constructor
+        # set room size
+        self.SIZE = (self.gm.WIDTH - self.gm.MARGINW * 2, self.gm.HEIGHT)
+        self.WIDTH, self.HEIGHT = self.SIZE
+
         # set coord, and add to grid
         self.coord = coord
         game.visitedrooms[coord[0]][coord[1]] = self
 
         # room dimension vars
         self.width, self.height = game.roomsize
-        self.left = game.marginw
+        self.left = game.MARGINW
         self.right = self.left + self.width
         self.center = (self.left + self.width/2, self.height/2)
 
@@ -159,10 +183,10 @@ class Room:
 
     def make_randomblock(self):
         # params for pos
-        blockminx = self.left + self.wallthickness
-        blockmaxx = self.right - self.wallthickness - Crate.width
-        blockminy = self.wallthickness
-        blockmaxy = self.gm.screenh - self.wallthickness - Crate.height
+        blockminx = self.left + self.WALLTHICKNESS
+        blockmaxx = self.right - self.WALLTHICKNESS - Crate.width
+        blockminy = self.WALLTHICKNESS
+        blockmaxy = self.gm.screenh - self.WALLTHICKNESS - Crate.height
 
         # generate random position
         blockx = r.randrange(blockminx, blockmaxx)
@@ -175,52 +199,52 @@ class Room:
 
     def make_outerwalls(self, opengates):
         # west wall
-        nongateh = (self.height - self.gatelength)/2
+        nongateh = (self.height - self.GATELENGTH)/2
         wall_wtop = Wall((self.left, 0), 
-                         (self.wallthickness, nongateh), 
+                         (self.WALLTHICKNESS, nongateh), 
                          self, self.gm)
-        wall_wbottom = Wall((self.left, self.gatelength + nongateh),
-                            (self.wallthickness, nongateh),
+        wall_wbottom = Wall((self.left, self.GATELENGTH + nongateh),
+                            (self.WALLTHICKNESS, nongateh),
                             self, self.gm)
         # east wall
-        wall_etop = Wall((self.right - self.wallthickness, 0), 
-                         (self.wallthickness, nongateh), 
+        wall_etop = Wall((self.right - self.WALLTHICKNESS, 0), 
+                         (self.WALLTHICKNESS, nongateh), 
                          self, self.gm)
-        wall_ebottom = Wall((self.right - self.wallthickness, self.gatelength + nongateh),
-                            (self.wallthickness, nongateh),
+        wall_ebottom = Wall((self.right - self.WALLTHICKNESS, self.GATELENGTH + nongateh),
+                            (self.WALLTHICKNESS, nongateh),
                             self, self.gm)
         # north wall
-        nongatew = (self.width - self.gatelength)/2
+        nongatew = (self.width - self.GATELENGTH)/2
         wall_nleft = Wall((self.left, 0), 
-                         (nongatew, self.wallthickness),
+                         (nongatew, self.WALLTHICKNESS),
                          self, self.gm)
         wall_nright = Wall((self.right - nongatew, 0), 
-                            (nongatew, self.wallthickness),
+                            (nongatew, self.WALLTHICKNESS),
                             self, self.gm)
         # south wall
-        wall_sleft = Wall((self.left, self.height - self.wallthickness), 
-                         (nongatew, self.wallthickness),
+        wall_sleft = Wall((self.left, self.height - self.WALLTHICKNESS), 
+                         (nongatew, self.WALLTHICKNESS),
                          self, self.gm)
-        wall_sright = Wall((self.right - nongatew, self.height - self.wallthickness), 
-                         (nongatew, self.wallthickness),
+        wall_sright = Wall((self.right - nongatew, self.height - self.WALLTHICKNESS), 
+                         (nongatew, self.WALLTHICKNESS),
                          self, self.gm)
 
         # gates
         if "W" not in opengates:
             wall_wgate = WallDestructible((self.left, nongateh), 
-                                          (self.wallthickness, self.gatelength), 
+                                          (self.WALLTHICKNESS, self.GATELENGTH), 
                                           self, self.gm)
         if "E" not in opengates:
-            wall_egate = WallDestructible((self.right - self.wallthickness, nongateh), 
-                                          (self.wallthickness, self.gatelength), 
+            wall_egate = WallDestructible((self.right - self.WALLTHICKNESS, nongateh), 
+                                          (self.WALLTHICKNESS, self.GATELENGTH), 
                                           self, self.gm)
         if "N" not in opengates:
             wall_ngate = WallDestructible((self.left + nongatew, 0), 
-                                          (self.gatelength, self.wallthickness),
+                                          (self.GATELENGTH, self.WALLTHICKNESS),
                                           self, self.gm)
         if "S" not in opengates:
-            wall_sgate = WallDestructible((self.left + nongatew, self.height - self.wallthickness), 
-                                          (self.gatelength, self.wallthickness),
+            wall_sgate = WallDestructible((self.left + nongatew, self.height - self.WALLTHICKNESS), 
+                                          (self.GATELENGTH, self.WALLTHICKNESS),
                                           self, self.gm)
 
     def move_offscreen(self):
