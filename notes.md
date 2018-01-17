@@ -119,6 +119,12 @@ p.death = True
 	- no brakeshots
 	- no more fuel refill
 
+### Project reformatting
+
+* docstrings on all public methods
+
+* pep8 generally - flake8 for verification
+
 ## Goals and milestones
 
 ### Milestones
@@ -235,3 +241,13 @@ Jan 14:
 	* Max length for player truster
 	* Width scaling for player thruster
 
+
+### Jan 17.
+
+**Goals:**
+
+	* Make checklist of shit to do re: reformatting
+
+**Accomplished:**
+
+	* 
