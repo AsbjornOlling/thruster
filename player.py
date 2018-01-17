@@ -34,7 +34,6 @@ class Player(pg.sprite.Sprite):
         # sprite groups
         game.allsprites.add(self)
         game.onscreen.add(self)
-        game.player.add(self)
         self.allsprites = pg.sprite.Group()
         self.thrusters = pg.sprite.Group()
         self.brakeshots = pg.sprite.Group()
@@ -44,8 +43,8 @@ class Player(pg.sprite.Sprite):
         self.dead = False
 
         # spawn at room center
-        self.posx = game.currentroom.center[0] - self.width/2
-        self.posy = game.currentroom.center[1] - self.height/2
+        self.posx = game.currentroom.CENTER[0] - self.width/2
+        self.posy = game.currentroom.CENTER[1] - self.height/2
 
         # speed vector and initial position
         self.speed = pg.math.Vector2()
@@ -69,13 +68,13 @@ class Player(pg.sprite.Sprite):
             self.add_fuel(self.fuel_refillrate * self.gm.dt)
 
         # detect leaving room
-        if self.rect.right < self.gm.currentroom.left:
+        if self.rect.right < self.gm.currentroom.LEFT:
             self.evm.notify(events.RoomExit("W"))
-        elif self.posx > self.gm.currentroom.right:
+        elif self.posx > self.gm.currentroom.RIGHT:
             self.evm.notify(events.RoomExit("E"))
         elif self.rect.bottom < 0:
             self.evm.notify(events.RoomExit("N"))
-        elif self.rect.top > self.gm.screenh:
+        elif self.rect.top > self.gm.HEIGHT:
             self.evm.notify(events.RoomExit("S"))
 
 
