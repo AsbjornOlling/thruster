@@ -122,8 +122,22 @@ p.death = True
 ### Project reformatting
 
 * docstrings on all public methods
-
 * pep8 generally - flake8 for verification
+
+**Files status:**
+
+	Done:
+	* main.py - done
+
+	Doing:
+	* game.py - partial
+
+	To be done:
+	* controls.py
+	* view.py 
+	* player.py 
+	* animation.py 
+
 
 ## Goals and milestones
 

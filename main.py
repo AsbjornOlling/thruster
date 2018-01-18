@@ -36,10 +36,7 @@ class App:
         self.kb = controls.KeyboardController(self.evm)     # handle keyboard
 
     def run(self):
-        """Start game and run main loop.
-
-        This method is never completed.
-        """
+        """Start game and run main loop."""
         # create room, player
         self.gm.start()
         while True:

@@ -138,7 +138,9 @@ class Game:
 
 
 class Room:
-    """A room contains groups of its contents, and methods to populate itself.
+    """A room, containgin walls, gates and enemies.
+
+    Contains groups of its contents, and methods to populate itself.
     """
     # concering room contents
     WALLTHICKNESS = 20
@@ -175,7 +177,8 @@ class Room:
                 print("OPEN GATE:" + str(relpos[2]))
 
         # populate room with gates and crates
-        self.make_outerwalls(opengates)
+        self.make_outerwalls()
+        self.make_gates(opengates)
         self.make_random_crate()
 
     def make_random_crate(self):
@@ -198,55 +201,71 @@ class Room:
         self.allsprites.add(self.wall_c)
 
 
-    def make_outerwalls(self, opengates):
-        # west wall
-        nongateh = (self.HEIGHT - self.GATELENGTH)/2
-        wall_wtop = Wall((self.LEFT, 0), 
-                         (self.WALLTHICKNESS, nongateh), 
-                         self, self.gm)
-        wall_wbottom = Wall((self.LEFT, self.GATELENGTH + nongateh),
-                            (self.WALLTHICKNESS, nongateh),
-                            self, self.gm)
-        # east wall
-        wall_etop = Wall((self.RIGHT - self.WALLTHICKNESS, 0), 
-                         (self.WALLTHICKNESS, nongateh), 
-                         self, self.gm)
-        wall_ebottom = Wall((self.RIGHT - self.WALLTHICKNESS, self.GATELENGTH + nongateh),
-                            (self.WALLTHICKNESS, nongateh),
-                            self, self.gm)
-        # north wall
-        nongatew = (self.WIDTH - self.GATELENGTH)/2
-        wall_nleft = Wall((self.LEFT, 0), 
-                         (nongatew, self.WALLTHICKNESS),
-                         self, self.gm)
-        wall_nright = Wall((self.RIGHT - nongatew, 0), 
-                            (nongatew, self.WALLTHICKNESS),
-                            self, self.gm)
-        # south wall
-        wall_sleft = Wall((self.LEFT, self.HEIGHT - self.WALLTHICKNESS), 
-                         (nongatew, self.WALLTHICKNESS),
-                         self, self.gm)
-        wall_sright = Wall((self.RIGHT - nongatew, self.HEIGHT - self.WALLTHICKNESS), 
-                         (nongatew, self.WALLTHICKNESS),
-                         self, self.gm)
+    def make_outerwalls(self):
+        """Make four outer walls.
 
-        # gates
+        Actually eight wall objects, leaving gaps for gates.
+        Walls add themselves to the appropriate spritegroup.
+        This should be run in the constructor for every room.
+        """
+        # height of wall segments on left and rigth side
+        nongateh = (self.HEIGHT - self.GATELENGTH)/2
+
+        # west wall
+        Wall((self.LEFT, 0),  # top segment   # position
+             (self.WALLTHICKNESS, nongateh),  # size
+             self, self.gm)                   # gamestate objects
+        Wall((self.LEFT, self.GATELENGTH + nongateh),  # bottom segment
+             (self.WALLTHICKNESS, nongateh),
+             self, self.gm)
+        # east wall
+        Wall((self.RIGHT - self.WALLTHICKNESS, 0),  # top
+             (self.WALLTHICKNESS, nongateh),
+             self, self.gm)
+        Wall((self.RIGHT - self.WALLTHICKNESS, self.GATELENGTH + nongateh),
+             (self.WALLTHICKNESS, nongateh),
+             self, self.gm)
+
+        # width of wall segments on top and bottom
+        nongatew = (self.WIDTH - self.GATELENGTH)/2
+        # north wall
+        Wall((self.LEFT, 0),  # left
+             (nongatew, self.WALLTHICKNESS),
+             self, self.gm)
+        Wall((self.RIGHT - nongatew, 0),  # right
+             (nongatew, self.WALLTHICKNESS),
+             self, self.gm)
+        # south wall
+        Wall((self.LEFT, self.HEIGHT - self.WALLTHICKNESS),  # left
+             (nongatew, self.WALLTHICKNESS),
+             self, self.gm)
+        Wall((self.RIGHT - nongatew, self.HEIGHT - self.WALLTHICKNESS),  # righ
+             (nongatew, self.WALLTHICKNESS),
+             self, self.gm)
+
+    def make_gates(self, opengates):
+        """Make gates, excluding the sides mentioned in opengates.
+
+        Should be called from constructor.
+        Passed variable opengates should be a list of chars, indicating
+        which gates *not* to make.
+        """
         if "W" not in opengates:
-            wall_wgate = WallDestructible((self.LEFT, nongateh), 
-                                          (self.WALLTHICKNESS, self.GATELENGTH), 
-                                          self, self.gm)
+            WallDestructible((self.LEFT, nongateh),
+                             (self.WALLTHICKNESS, self.GATELENGTH),
+                             self, self.gm)
         if "E" not in opengates:
-            wall_egate = WallDestructible((self.RIGHT - self.WALLTHICKNESS, nongateh), 
-                                          (self.WALLTHICKNESS, self.GATELENGTH), 
-                                          self, self.gm)
+            WallDestructible((self.RIGHT - self.WALLTHICKNESS, nongateh),
+                             (self.WALLTHICKNESS, self.GATELENGTH),
+                             self, self.gm)
         if "N" not in opengates:
-            wall_ngate = WallDestructible((self.LEFT + nongatew, 0), 
-                                          (self.GATELENGTH, self.WALLTHICKNESS),
-                                          self, self.gm)
+            WallDestructible((self.LEFT + nongatew, 0),
+                             (self.GATELENGTH, self.WALLTHICKNESS),
+                             self, self.gm)
         if "S" not in opengates:
-            wall_sgate = WallDestructible((self.LEFT + nongatew, self.HEIGHT - self.WALLTHICKNESS), 
-                                          (self.GATELENGTH, self.WALLTHICKNESS),
-                                          self, self.gm)
+            WallDestructible((self.LEFT + nongatew, self.HEIGHT - self.WALLTHICKNESS),
+                             (self.GATELENGTH, self.WALLTHICKNESS),
+                             self, self.gm)
 
     def move_offscreen(self):
         for sprite in self.allsprites:
@@ -254,7 +273,7 @@ class Room:
             self.gm.offscreen.add(sprite)
 
     def move_onscreen(self):
-        # move sprites to 
+        # move sprites to
         for sprite in self.allsprites:
             self.gm.offscreen.remove(sprite)
             self.gm.onscreen.add(sprite)
