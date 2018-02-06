@@ -139,6 +139,19 @@ p.death = True
 	* animation.py 
 
 
+### Scratch notes feb
+
+* Alt. "class" with rotational thruster controls
+* Multiple space stations
+* Death system:
+	- One-hit shield, low recharge rate
+	- One damage hit before death (non-recharging)
+	- Three consecutive hits kills, two consecutive hits leaves you with two more hits.
+* Stealth rooms
+- More dynamic walls
+* Corridor rooms
+
+
 ## Goals and milestones
 
 ### Milestones

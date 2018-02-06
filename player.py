@@ -14,7 +14,7 @@ class Player(pg.sprite.Sprite):
 
     # movement constants
     speedmod = 100
-    bounce_factor = -0.5  # must be between -1 and 0
+    bounce_factor = -0.8  # must be between -1 and 0
     brake_factor = -0.1  # small negative number
     brake_minspeed = 1.5  # length of speedvector
     maxfuel = 100.0

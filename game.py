@@ -143,7 +143,7 @@ class Room:
     Contains groups of its contents, and methods to populate itself.
     """
     # concering room contents
-    WALLTHICKNESS = 20
+    WALLTHICKNESS = 48
     GATELENGTH = 200
     # room size
     WIDTH = Game.WIDTH - Game.MARGINW * 2
@@ -176,10 +176,37 @@ class Room:
                 opengates.append(relpos[2])
                 print("OPEN GATE:" + str(relpos[2]))
 
+        # make floor tiles
+        self.make_floor()
+
         # populate room with gates and crates
         self.make_outerwalls()
         self.make_gates(opengates)
         self.make_random_crate()
+
+    def make_floor(self):
+        "Makes a surface with a grid of floor tiles"
+
+        self.floor = pg.Surface((self.WIDTH, self.HEIGHT))
+        lighttile = pg.image.load("assets/lighttile-48.png")
+        blanktile = pg.image.load("assets/tile-48.png")
+        tilewidth = 48  # real pixels
+
+        tilesx = (self.WIDTH) // tilewidth
+        tilesy = (self.HEIGHT) // tilewidth
+
+        posx = 0
+        posy = 0
+        # loop through all floor tiles
+        for i in range(0, tilesy):
+            for j in range(0, tilesx):
+                if posy is tilewidth:
+                    self.floor.blit(lighttile, (posx, posy))
+                else:
+                    self.floor.blit(blanktile, (posx, posy))
+                posx += tilewidth
+            posx = 0
+            posy += tilewidth
 
     def make_random_crate(self):
         """Make crate at random position.
@@ -250,21 +277,26 @@ class Room:
         Passed variable opengates should be a list of chars, indicating
         which gates *not* to make.
         """
+        # height of wall segments on left and rigth side
+        nongateh = (self.HEIGHT - self.GATELENGTH)/2
+        # width of wall segments on top and bottom
+        nongatew = (self.WIDTH - self.GATELENGTH)/2
+
         if "W" not in opengates:
-            WallDestructible((self.LEFT, nongateh),
-                             (self.WALLTHICKNESS, self.GATELENGTH),
+            WallDestructible((self.LEFT, nongateh),  # position
+                             (self.WALLTHICKNESS/2, self.GATELENGTH),  # size
                              self, self.gm)
         if "E" not in opengates:
-            WallDestructible((self.RIGHT - self.WALLTHICKNESS, nongateh),
-                             (self.WALLTHICKNESS, self.GATELENGTH),
+            WallDestructible((self.RIGHT - self.WALLTHICKNESS/2, nongateh),
+                             (self.WALLTHICKNESS/2, self.GATELENGTH),  # size
                              self, self.gm)
         if "N" not in opengates:
             WallDestructible((self.LEFT + nongatew, 0),
-                             (self.GATELENGTH, self.WALLTHICKNESS),
+                             (self.GATELENGTH, self.WALLTHICKNESS/2),
                              self, self.gm)
         if "S" not in opengates:
-            WallDestructible((self.LEFT + nongatew, self.HEIGHT - self.WALLTHICKNESS),
-                             (self.GATELENGTH, self.WALLTHICKNESS),
+            WallDestructible((self.LEFT + nongatew, self.HEIGHT - self.WALLTHICKNESS/2),
+                             (self.GATELENGTH, self.WALLTHICKNESS/2),
                              self, self.gm)
 
     def move_offscreen(self):
@@ -368,14 +400,11 @@ class Crate(WallDestructible):
                                / self.maxhealth
                                * self.health)
 
-            print("frameno" + str(frameno))
-            print("healph" + str(self.health))
             self.image = self.animation.get_frame_no(frameno)
 
     def takedamage(self, amount):
         self.health -= amount
         # kill sprite if no health
         if self.health < 1:
-            print("CRATE BROKEN")
             self.dead = True
             self.image = self.animation.get_frame_no(self.animation.noofframes - 1)

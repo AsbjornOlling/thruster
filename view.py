@@ -37,11 +37,10 @@ class Viewer():
         self.update_rects_next = []
 
         # bool to control first full-screen update
-        self.first_update = True
+        self.firstupdate = True
 
         # fuelmeter
         self.ani_fuel = ani.Animation("fuelmeter-316.png", 316)
-
 
     # run on every tick
     def update(self):
@@ -49,6 +48,7 @@ class Viewer():
         self.screen.fill(self.color_bg)
 
         # draw main visible content
+        self.draw_floor()
         self.draw_thrusters()
         self.draw_sprites()
         self.draw_walls()
@@ -57,9 +57,10 @@ class Viewer():
         # update changed rects only
         pg.display.update(self.update_rects)
         # update all all
-        if self.first_update:
+        # pg.display.update()
+        if self.firstupdate:
             pg.display.update()
-            self.first_update = False
+            self.firstupdate = False
 
         # reset lists
         self.update_rects = []
@@ -67,18 +68,23 @@ class Viewer():
             self.update_rects.append(rect)
         self.update_rects_next = []
 
-
-    # handle events
     def notify(self, event):
+        "Handle events"
         if isinstance(event, events.ObjDeath):
             # make sure to update dead wall
             self.update_rects.append(event.rect)
         elif isinstance(event, events.ClearScreen):
             # update entire room
             screenrect = pg.Rect((self.gm.MARGINW, 0),
-                                 (self.gm.currentroom.WIDTH,self.screenh))
+                                 (self.gm.currentroom.WIDTH, self.screenh))
             self.update_rects.append(screenrect)
-    
+
+    def draw_floor(self):
+        "Fetches floor tiles and blits them onto the screen"
+        posx = self.gm.MARGINW
+        posy = 0
+        self.screen.blit(self.gm.currentroom.floor, (posx, posy))
+
     # draw sprites and get update rects
     def draw_sprites(self):
         for rect in self.gm.onscreen.draw(self.screen):
@@ -97,7 +103,7 @@ class Viewer():
             if hasattr(wall, "health"):
                 # make totally red surface
                 reds = pg.Surface(wall.rect.size)
-                reds.fill((255,0,0))
+                reds.fill((255, 0, 0))
                 # transparancy based on health
                 reds.set_alpha(256 - wall.health*1.5)
                 # draw on screen
@@ -110,22 +116,21 @@ class Viewer():
             self.update_rects.append(thruster.rect)
             self.update_rects_next.append(thruster.rect)
 
-
-    # bits to the left and right of room-section
     def draw_margins(self):
+        "Draw UI panels on screen margins"
         # left cover
-        self.margin_L = pg.Rect((0, 0), 
-                           (self.gm.MARGINW, self.screenh))
+        self.margin_L = pg.Rect((0, 0),
+                                (self.gm.MARGINW, self.screenh))
         pg.draw.rect(self.screen, self.color_margin, self.margin_L)
 
         # right cover
-        self.margin_R = pg.Rect((self.gm.currentroom.RIGHT, 0), 
-                           (self.gm.MARGINW, self.screenh))
+        self.margin_R = pg.Rect((self.gm.currentroom.RIGHT, 0),
+                                (self.gm.MARGINW, self.screenh))
         pg.draw.rect(self.screen, self.color_margin, self.margin_R)
 
         # add margins to update list
         # only on first run
-        #if not self.margins_updated:
+        # if not self.margins_updated:
         #    self.update_rects.append(self.margin_R)
         #    self.update_rects_next.append(self.margin_R)
         #    self.update_rects.append(self.margin_L)
@@ -136,7 +141,6 @@ class Viewer():
         self.draw_fuelmeter()
         # speed information on right margin
         self.draw_velocitypanel()
-
 
     # draw red bar on left panel, length based on player fuel
     def draw_fuelmeter(self):
