@@ -197,10 +197,11 @@ class Room:
 
         posx = 0
         posy = 0
-        # loop through all floor tiles
+        # loop through horizontal lines
         for i in range(0, tilesy):
+            # tiles on each horiz line
             for j in range(0, tilesx):
-                if posy is tilewidth:
+                if posy is tilewidth and posx % 2 is 0:
                     self.floor.blit(lighttile, (posx, posy))
                 else:
                     self.floor.blit(blanktile, (posx, posy))

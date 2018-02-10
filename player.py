@@ -7,6 +7,7 @@ import game
 import events
 import animation as ani
 
+
 class Player(pg.sprite.Sprite):
     # sprite size
     width = 32
@@ -14,26 +15,25 @@ class Player(pg.sprite.Sprite):
 
     # movement constants
     speedmod = 100
-    bounce_factor = -0.8  # must be between -1 and 0
+    bounce_factor = -1.2  # must be between -1 and 0
     brake_factor = -0.1  # small negative number
     brake_minspeed = 1.5  # length of speedvector
     maxfuel = 100.0
     fuel_refillrate = 5  # per time unit
 
-
-    def __init__(self, game):
+    def __init__(self, gm):
         pg.sprite.Sprite.__init__(self)
 
         # gamestate
-        self.gm = game
+        self.gm = gm
 
         # event listener
-        self.evm = game.evm
+        self.evm = gm.evm
         self.evm.add_listener(self)
 
         # sprite groups
-        game.allsprites.add(self)
-        game.onscreen.add(self)
+        gm.allsprites.add(self)
+        gm.onscreen.add(self)
         self.allsprites = pg.sprite.Group()
         self.thrusters = pg.sprite.Group()
         self.brakeshots = pg.sprite.Group()
@@ -43,8 +43,8 @@ class Player(pg.sprite.Sprite):
         self.dead = False
 
         # spawn at room center
-        self.posx = game.currentroom.CENTER[0] - self.width/2
-        self.posy = game.currentroom.CENTER[1] - self.height/2
+        self.posx = gm.currentroom.CENTER[0] - self.width/2
+        self.posy = gm.currentroom.CENTER[1] - self.height/2
 
         # speed vector and initial position
         self.speed = pg.math.Vector2()
@@ -54,7 +54,6 @@ class Player(pg.sprite.Sprite):
         self.image = pg.transform.scale(self.image, (self.width, self.height))
         self.rect = self.image.get_rect()
         self.move()
-
 
     # run on every tick
     def update(self):
@@ -77,14 +76,12 @@ class Player(pg.sprite.Sprite):
         elif self.rect.top > self.gm.HEIGHT:
             self.evm.notify(events.RoomExit("S"))
 
-
     # run on event receive
     def notify(self, event):
         if isinstance(event, events.PlayerThrust) and not self.dead:
             self.thrust(event.direction)
         elif isinstance(event, events.PlayerBrake) and not self.dead:
             self.brake()
-
 
     # thruster sprite and acceleration
     def thrust(self, direction):
@@ -107,7 +104,6 @@ class Player(pg.sprite.Sprite):
             self.accelerate((0, 1))
         elif direction == "S":
             self.accelerate((0, -1))
-
 
     # "brakeshot" - stops momentum, deals a lot of damage
     def brake(self):
